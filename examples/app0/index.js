@@ -111,7 +111,7 @@ export default class App {
 	destroy() {}
 
 	_makePlanes() {
-		this._plane = new Plane(this.gl);
+		this._plane = new Plane(this.gl, 100, 100, 1, 1, { isWire: true });
 		this._plane.posTheta = 0;
 		this._plane.rotTheta = 0;
 	}

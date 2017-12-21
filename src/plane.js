@@ -27,40 +27,29 @@ export class Plane extends EventEmitter {
 		height = 100,
 		segmentW = 1,
 		segmentH = 1,
-		position = [0, 0, 0],
-		rotation = [0, 0, 0],
-		scale = [1, 1, 1],
 		params = {}
 	) {
 		super();
 
-		this._position = new Float32Array(position);
-		this._rotation = new Float32Array(rotation);
-		this._scale = new Float32Array(scale);
-
+		this._isNeedUpdate = true;
+		this._isWire = !!params.isWire;
+		this._isDepthTest = !!params.isDepthTest;
+		this._isTransparent = !!params.isTransparent;
 		this._isGl2 = params.isGl2;
+		this._modelMatrix = mat4.create();
+
 		this._gl = gl;
 		this._side = params.side ? params.side : 'double'; // 'front', 'back', 'double'
-
-		const fragmentShaderSrc = params.fragmentShaderSrc
-			? params.fragmentShaderSrc
-			: this._isGl2 ? base2ShaderFragSrc : baseShaderFragSrc;
-		const vertexShaderSrc = params.vertexShaderSrc
-			? params.vertexShaderSrc
-			: this._isGl2 ? base2ShaderVertSrc : baseShaderVertSrc;
-
 		this._width = width;
 		this._height = height;
 		this._segmentW = segmentW;
 		this._segmentH = segmentH;
 
-		this._program = new Program(this._gl, vertexShaderSrc, fragmentShaderSrc);
-		this._modelMatrix = mat4.create();
-		this._isNeedUpdate = true;
-		this._isWire = !!params.isWire;
-		this._isDepthTest = !!params.isDepthTest;
-		this._isTransparent = !!params.isTransparent;
+		this._position = new Float32Array([0, 0, 0]);
+		this._rotation = new Float32Array([0, 0, 0]);
+		this._scale = new Float32Array([1, 1, 1]);
 
+		this._makeProgram(params);
 		this._makBuffer();
 	}
 
@@ -84,6 +73,21 @@ export class Plane extends EventEmitter {
 		return this;
 	}
 
+	_makeProgram(params) {
+		const fragmentShaderSrc = params.fragmentShaderSrc
+			? params.fragmentShaderSrc
+			: this._isGl2 ? base2ShaderFragSrc : baseShaderFragSrc;
+		const vertexShaderSrc = params.vertexShaderSrc
+			? params.vertexShaderSrc
+			: this._isGl2 ? base2ShaderVertSrc : baseShaderVertSrc;
+
+		this._program = new Program(
+			this._gl,
+			vertexShaderSrc,
+			fragmentShaderSrc
+		);
+	}
+
 	_makBuffer() {
 		if (this._isGl2) {
 			this._vao = new VAO(this._gl);
@@ -91,7 +95,7 @@ export class Plane extends EventEmitter {
 		}
 		this._positionBuffer = new ArrayBuffer(
 			this._gl,
-			this._getVertices(
+			Plane._getVertices(
 				this._width,
 				this._height,
 				this._segmentW,
@@ -102,7 +106,7 @@ export class Plane extends EventEmitter {
 
 		this._barycentricPositionBuffer = new ArrayBuffer(
 			this._gl,
-			this._getBarycentricVertices(this._segmentW, this._segmentH)
+			Plane._getBarycentricVertices(this._segmentW, this._segmentH)
 		);
 		this._barycentricPositionBuffer.setAttribs('barycentricPosition', 3);
 
@@ -111,10 +115,14 @@ export class Plane extends EventEmitter {
 			this._barycentricPositionBuffer.bind().attribPointer(this._program);
 		}
 
-		let indices = this._getIndices(this._segmentW, this._segmentH);
+		let indices = Plane._getIndices(this._segmentW, this._segmentH);
 		this._indexBuffer = new IndexArrayBuffer(this._gl, indices);
 
 		this._cnt = indices.length;
+
+		if (this._isWire) {
+			Plane._getWireframeIndices(this._indexBuffer);
+		}
 	}
 
 	update(camera) {
@@ -201,7 +209,7 @@ export class Plane extends EventEmitter {
 		return this;
 	}
 
-	_getVertices(width, height, segmentW, segmentH) {
+	static _getVertices(width, height, segmentW, segmentH) {
 		let vertices = [];
 		let xRate = 1 / segmentW;
 		let yRate = 1 / segmentH;
@@ -221,7 +229,7 @@ export class Plane extends EventEmitter {
 		return vertices;
 	}
 
-	_getBarycentricVertices(segmentW, segmentH) {
+	static _getBarycentricVertices(segmentW, segmentH) {
 		let barycentricVertices = [];
 		let barycentricId;
 
@@ -253,7 +261,7 @@ export class Plane extends EventEmitter {
 		return barycentricVertices;
 	}
 
-	_getIndices(segmentW, segmentH) {
+	static _getIndices(segmentW, segmentH) {
 		let indices = [];
 
 		for (let yy = 0; yy < segmentH; yy++) {
@@ -274,5 +282,9 @@ export class Plane extends EventEmitter {
 		indices = new Uint16Array(indices);
 
 		return indices;
+	}
+
+	static _getWireframeIndices(indexBuffer) {
+		console.log(indexBuffer);
 	}
 }
