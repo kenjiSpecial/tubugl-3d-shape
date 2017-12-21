@@ -6,7 +6,8 @@ const dat = require('dat.gui/build/dat.gui.min');
 const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
-import { Plane } from '../../index';
+import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT } from 'tubugl-constants';
+import { Box } from '../../index';
 import { PerspectiveCamera } from 'tubugl-camera';
 
 export default class App {
@@ -19,7 +20,7 @@ export default class App {
 		this.canvas = document.createElement('canvas');
 		this.gl = this.canvas.getContext('webgl');
 
-		this._makePlanes();
+		this._makeBox();
 		this._makeCamera();
 
 		this.resize(this._width, this._height);
@@ -40,7 +41,7 @@ export default class App {
 		if (this.stats) this.stats.update();
 
 		this.gl.clearColor(0, 0, 0, 1);
-		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+		this.gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 
 		this._camera
 			.updatePosition(
@@ -50,12 +51,7 @@ export default class App {
 			)
 			.lookAt([0, 0, 0]);
 
-		if (this._isPlaneAnimation) this._plane.rotTheta += 1 / 30;
-		this._plane
-			.setPosition(100 * Math.cos(this._plane.rotTheta), 0, 0)
-			.setRotation(this._plane.rotTheta, 0, 0)
-			.update(this._camera)
-			.draw();
+		this._box.update(this._camera).draw();
 	}
 
 	animateOut() {
@@ -105,15 +101,17 @@ export default class App {
 		this.canvas.height = this._height;
 		this.gl.viewport(0, 0, this._width, this._height);
 
-		this._plane.resize(this._width, this._height);
+		this._box.resize(this._width, this._height);
 	}
 
 	destroy() {}
 
-	_makePlanes() {
-		this._plane = new Plane(this.gl, 100, 100, 1, 1, { isWire: true });
-		this._plane.posTheta = 0;
-		this._plane.rotTheta = 0;
+	_makeBox() {
+		this._box = new Box(this.gl, 200, 200, 200, 3, 3, 3, {
+			isWire: false
+		});
+		this._box.posTheta = 0;
+		this._box.rotTheta = 0;
 	}
 
 	_makeCamera() {
@@ -126,9 +124,9 @@ export default class App {
 	_addGui() {
 		this.gui = new dat.GUI();
 		this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause');
-		this._planeGUIFolder = this.gui.addFolder('plane');
-		this._planeGUIFolder.add(this, '_isPlaneAnimation').name('animation');
-		this._plane.addGui(this._planeGUIFolder);
-		this._planeGUIFolder.open();
+		this._boxGUIFolder = this.gui.addFolder('plane');
+		this._boxGUIFolder.add(this, '_isPlaneAnimation').name('animation');
+		this._box.addGui(this._boxGUIFolder);
+		this._boxGUIFolder.open();
 	}
 }

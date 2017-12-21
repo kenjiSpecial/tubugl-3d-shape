@@ -1,6 +1,6 @@
 export const baseShaderVertSrc = `
 attribute vec4 position;
-attribute vec3 barycentricPosition;
+// attribute vec3 barycentricPosition;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
@@ -10,8 +10,8 @@ varying vec3 vBarycentricPosition;
 
 void main() {
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
-    
-    vBarycentricPosition = barycentricPosition;
+    gl_PointSize = 10.;
+    // vBarycentricPosition = barycentricPosition;
 }`;
 
 export const baseShaderFragSrc = `
@@ -19,13 +19,13 @@ precision mediump float;
 
 uniform bool uWireframe;
 
-varying vec3 vBarycentricPosition;
+// varying vec3 vBarycentricPosition;
 
 void main() {
-    if(uWireframe){
-        float minBarycentricVal = min(min(vBarycentricPosition.x, vBarycentricPosition.y), vBarycentricPosition.z);
-        if(minBarycentricVal > 0.01) discard;
-    }
+    // if(uWireframe){
+    //     float minBarycentricVal = min(min(vBarycentricPosition.x, vBarycentricPosition.y), vBarycentricPosition.z);
+    //     if(minBarycentricVal > 0.01) discard;
+    // }
     float colorR = gl_FrontFacing ? 1.0 : 0.0;
     float colorG = gl_FrontFacing ? 0.0 : 1.0;
     

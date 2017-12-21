@@ -1,1 +1,1 @@
-export { Plane } from './src/plane';
+export { Box } from './src/box';

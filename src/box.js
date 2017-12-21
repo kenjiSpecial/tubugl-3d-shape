@@ -1,3 +1,5 @@
+// http://catlikecoding.com/unity/tutorials/rounded-cube/
+
 const EventEmitter = require('wolfy87-eventemitter');
 import { mat4 } from 'gl-matrix/src/gl-matrix';
 import {
@@ -11,6 +13,7 @@ import {
 	CULL_FACE,
 	FRONT,
 	BACK,
+	POINTS,
 	TRIANGLES,
 	UNSIGNED_SHORT,
 	DEPTH_TEST,
@@ -20,13 +23,15 @@ import {
 	BLEND
 } from 'tubugl-constants';
 
-export class Plane extends EventEmitter {
+export class Box extends EventEmitter {
 	constructor(
 		gl,
 		width = 100,
 		height = 100,
-		segmentW = 1,
-		segmentH = 1,
+		depth = 100,
+		widthSegments = 1,
+		heightSegments = 1,
+		depthSegments = 1,
 		params = {}
 	) {
 		super();
@@ -42,8 +47,10 @@ export class Plane extends EventEmitter {
 		this._side = params.side ? params.side : 'double'; // 'front', 'back', 'double'
 		this._width = width;
 		this._height = height;
-		this._segmentW = segmentW;
-		this._segmentH = segmentH;
+		this._depth = depth;
+		this._widthSegments = widthSegments;
+		this._heightSegments = heightSegments;
+		this._depthSegments = depthSegments;
 
 		this._position = new Float32Array([0, 0, 0]);
 		this._rotation = new Float32Array([0, 0, 0]);
@@ -93,36 +100,55 @@ export class Plane extends EventEmitter {
 			this._vao = new VAO(this._gl);
 			this._vao.bind();
 		}
+
+		let cornerVertices = 8;
+		let edgeVertices =
+			(this._widthSegments +
+				this._heightSegments +
+				this._depthSegments -
+				3) *
+			4;
+		let faceVertices =
+			((this._widthSegments - 1) * (this._heightSegments - 1) +
+				(this._widthSegments - 1) * (this._depthSegments - 1) +
+				(this._heightSegments - 1) * (this._depthSegments - 1)) *
+			2;
+		this._verticeNum = cornerVertices + edgeVertices + faceVertices;
+
 		this._positionBuffer = new ArrayBuffer(
 			this._gl,
-			Plane._getVertices(
+			Box.getVertices(
 				this._width,
 				this._height,
-				this._segmentW,
-				this._segmentH
+				this._depth,
+				this._widthSegments,
+				this._heightSegments,
+				this._depthSegments
 			)
 		);
-		this._positionBuffer.setAttribs('position', 2);
+		this._positionBuffer.setAttribs('position', 3);
 
+		/**
 		this._barycentricPositionBuffer = new ArrayBuffer(
 			this._gl,
 			Plane._getBarycentricVertices(this._segmentW, this._segmentH)
 		);
 		this._barycentricPositionBuffer.setAttribs('barycentricPosition', 3);
+		*/
 
 		if (this._vao) {
 			this._positionBuffer.bind().attribPointer(this._program);
-			this._barycentricPositionBuffer.bind().attribPointer(this._program);
+			//this._barycentricPositionBuffer.bind().attribPointer(this._program);
 		}
 
-		let indices = Plane._getIndices(this._segmentW, this._segmentH);
-		this._indexBuffer = new IndexArrayBuffer(this._gl, indices);
+		// let indices = Plane._getIndices(this._segmentW, this._segmentH);
+		// this._indexBuffer = new IndexArrayBuffer(this._gl, indices);
 
-		this._cnt = indices.length;
+		// this._cnt = indices.length;
 
-		if (this._isWire) {
-			Plane._getWireframeIndices(this._indexBuffer);
-		}
+		// if (this._isWire) {
+		// 	Plane._getWireframeIndices(this._indexBuffer);
+		// }
 	}
 
 	update(camera) {
@@ -134,14 +160,14 @@ export class Plane extends EventEmitter {
 			this._vao.bind();
 		} else {
 			this._positionBuffer.bind().attribPointer(this._program);
-			this._barycentricPositionBuffer.bind().attribPointer(this._program);
-			this._indexBuffer.bind();
+			// this._barycentricPositionBuffer.bind().attribPointer(this._program);
+			// this._indexBuffer.bind();
 		}
 
-		this._gl.uniform1f(
-			this._program.getUniforms('uWireframe').location,
-			this._isWire
-		);
+		// this._gl.uniform1f(
+		// 	this._program.getUniforms('uWireframe').location,
+		// 	this._isWire
+		// );
 		this._gl.uniformMatrix4fv(
 			this._program.getUniforms('modelMatrix').location,
 			false,
@@ -183,7 +209,15 @@ export class Plane extends EventEmitter {
 			this._gl.disable(BLEND);
 		}
 
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		// this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		this._gl.drawArrays(
+			POINTS,
+			0,
+			this._positionBuffer.dataArray.length / 3
+		);
+		// console.log(this._positionBuffer.dataArray.length / 3);
+
+		// console.log(this._positionBuffer);
 
 		return this;
 	}
@@ -209,21 +243,65 @@ export class Plane extends EventEmitter {
 		return this;
 	}
 
-	static _getVertices(width, height, segmentW, segmentH) {
+	static getVertices(
+		width,
+		height,
+		depth,
+		widthSegments,
+		heightSegments,
+		depthSegments
+	) {
+		let xx, yy, zz;
 		let vertices = [];
-		let xRate = 1 / segmentW;
-		let yRate = 1 / segmentH;
+		let verticeNum = 0;
+		const widthRate = 1 / widthSegments;
+		const heightRate = 1 / heightSegments;
+		const depthRate = 1 / depthSegments;
+		const halfWidth = width / 2;
+		const halfHeight = height / 2;
+		const halfDepth = depth / 2;
 
-		// set vertices and barycentric vertices
-		for (let yy = 0; yy <= segmentH; yy++) {
-			let yPos = (-0.5 + yRate * yy) * height;
+		for (yy = 0; yy <= heightSegments; yy++) {
+			let yPos = -halfHeight + height * heightRate * yy;
 
-			for (let xx = 0; xx <= segmentW; xx++) {
-				let xPos = (-0.5 + xRate * xx) * width;
-				vertices.push(xPos);
-				vertices.push(yPos);
+			for (xx = 0; xx <= widthSegments; xx++) {
+				vertices[verticeNum++] = width * widthRate * xx - halfWidth;
+				vertices[verticeNum++] = yPos;
+				vertices[verticeNum++] = -halfDepth;
+			}
+			for (zz = 1; zz <= depthSegments; zz++) {
+				vertices[verticeNum++] = halfWidth;
+				vertices[verticeNum++] = yPos;
+				vertices[verticeNum++] = -halfDepth + zz * depthRate * depth;
+			}
+			for (xx = widthSegments - 1; xx >= 0; xx--) {
+				vertices[verticeNum++] = width * widthRate * xx - halfWidth;
+				vertices[verticeNum++] = yPos;
+				vertices[verticeNum++] = halfDepth;
+			}
+
+			for (zz = depthSegments - 1; zz > 0; zz--) {
+				vertices[verticeNum++] = -halfWidth;
+				vertices[verticeNum++] = yPos;
+				vertices[verticeNum++] = -halfDepth + zz * depthRate * depth;
 			}
 		}
+
+		// bottom
+		for (yy = 0; yy < 2; yy++) {
+			let yPos = yy === 0 ? -halfHeight : halfHeight;
+			for (zz = 1; zz < depthSegments; zz++) {
+				let zPos = -halfDepth + zz * depthRate * depth;
+				for (xx = 1; xx < widthSegments; xx++) {
+					let xPos = -halfWidth + xx * widthRate * width;
+
+					vertices[verticeNum++] = xPos;
+					vertices[verticeNum++] = yPos;
+					vertices[verticeNum++] = zPos;
+				}
+			}
+		}
+
 		vertices = new Float32Array(vertices);
 
 		return vertices;
@@ -261,9 +339,10 @@ export class Plane extends EventEmitter {
 		return barycentricVertices;
 	}
 
-	static _getIndices(segmentW, segmentH) {
+	static getIndices(widthSegments, heightSegments, depthSegments) {
 		let indices = [];
 
+		/**
 		for (let yy = 0; yy < segmentH; yy++) {
 			for (let xx = 0; xx < segmentW; xx++) {
 				let rowStartNum = yy * (segmentW + 1);
@@ -278,8 +357,9 @@ export class Plane extends EventEmitter {
 				indices.push(nextRowStartNum + xx);
 			}
 		}
+         */
 
-		indices = new Uint16Array(indices);
+		// indices = new Uint16Array(indices);
 
 		return indices;
 	}
