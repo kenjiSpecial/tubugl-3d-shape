@@ -38,7 +38,7 @@ export class Box extends EventEmitter {
 
 		this._isNeedUpdate = true;
 		this._isWire = !!params.isWire;
-		this._isDepthTest = !!params.isDepthTest;
+		this._isDepthTest = params.isDepthTest ? params.isDepthTest : true;
 		this._isTransparent = !!params.isTransparent;
 		this._isGl2 = params.isGl2;
 		this._modelMatrix = mat4.create();
@@ -141,10 +141,13 @@ export class Box extends EventEmitter {
 			//this._barycentricPositionBuffer.bind().attribPointer(this._program);
 		}
 
-		// let indices = Plane._getIndices(this._segmentW, this._segmentH);
-		// this._indexBuffer = new IndexArrayBuffer(this._gl, indices);
-
-		// this._cnt = indices.length;
+		let indices = Box.getIndices(
+			this._widthSegments,
+			this._heightSegments,
+			this._depthSegments
+		);
+		this._indexBuffer = new IndexArrayBuffer(this._gl, indices);
+		this._cnt = indices.length;
 
 		// if (this._isWire) {
 		// 	Plane._getWireframeIndices(this._indexBuffer);
@@ -161,7 +164,7 @@ export class Box extends EventEmitter {
 		} else {
 			this._positionBuffer.bind().attribPointer(this._program);
 			// this._barycentricPositionBuffer.bind().attribPointer(this._program);
-			// this._indexBuffer.bind();
+			this._indexBuffer.bind();
 		}
 
 		// this._gl.uniform1f(
@@ -209,12 +212,13 @@ export class Box extends EventEmitter {
 			this._gl.disable(BLEND);
 		}
 
-		// this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
 		this._gl.drawArrays(
 			POINTS,
 			0,
 			this._positionBuffer.dataArray.length / 3
 		);
+		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+
 		// console.log(this._positionBuffer.dataArray.length / 3);
 
 		// console.log(this._positionBuffer);
@@ -267,23 +271,23 @@ export class Box extends EventEmitter {
 			for (xx = 0; xx <= widthSegments; xx++) {
 				vertices[verticeNum++] = width * widthRate * xx - halfWidth;
 				vertices[verticeNum++] = yPos;
-				vertices[verticeNum++] = -halfDepth;
+				vertices[verticeNum++] = halfDepth;
 			}
 			for (zz = 1; zz <= depthSegments; zz++) {
 				vertices[verticeNum++] = halfWidth;
 				vertices[verticeNum++] = yPos;
-				vertices[verticeNum++] = -halfDepth + zz * depthRate * depth;
+				vertices[verticeNum++] = halfDepth - zz * depthRate * depth;
 			}
 			for (xx = widthSegments - 1; xx >= 0; xx--) {
 				vertices[verticeNum++] = width * widthRate * xx - halfWidth;
 				vertices[verticeNum++] = yPos;
-				vertices[verticeNum++] = halfDepth;
+				vertices[verticeNum++] = -halfDepth;
 			}
 
 			for (zz = depthSegments - 1; zz > 0; zz--) {
 				vertices[verticeNum++] = -halfWidth;
 				vertices[verticeNum++] = yPos;
-				vertices[verticeNum++] = -halfDepth + zz * depthRate * depth;
+				vertices[verticeNum++] = halfDepth - zz * depthRate * depth;
 			}
 		}
 
@@ -291,7 +295,7 @@ export class Box extends EventEmitter {
 		for (yy = 0; yy < 2; yy++) {
 			let yPos = yy === 0 ? -halfHeight : halfHeight;
 			for (zz = 1; zz < depthSegments; zz++) {
-				let zPos = -halfDepth + zz * depthRate * depth;
+				let zPos = halfDepth - zz * depthRate * depth;
 				for (xx = 1; xx < widthSegments; xx++) {
 					let xPos = -halfWidth + xx * widthRate * width;
 
@@ -342,24 +346,59 @@ export class Box extends EventEmitter {
 	static getIndices(widthSegments, heightSegments, depthSegments) {
 		let indices = [];
 
-		/**
-		for (let yy = 0; yy < segmentH; yy++) {
-			for (let xx = 0; xx < segmentW; xx++) {
-				let rowStartNum = yy * (segmentW + 1);
-				let nextRowStartNum = (yy + 1) * (segmentW + 1);
+		let oneSideVertexNum =
+			4 + 2 * (widthSegments - 1) + 2 * (depthSegments - 1);
 
-				indices.push(rowStartNum + xx);
-				indices.push(rowStartNum + xx + 1);
-				indices.push(nextRowStartNum + xx);
+		for (let height = 0; height < heightSegments ; height++) {
+			let heightPosNum = oneSideVertexNum * height;
 
-				indices.push(rowStartNum + xx + 1);
-				indices.push(nextRowStartNum + xx + 1);
-				indices.push(nextRowStartNum + xx);
+			for (let row = 0; row < oneSideVertexNum; row++) {
+				indices.push(row + heightPosNum);
+				if (row === oneSideVertexNum - 1)
+					indices.push(0 + heightPosNum);
+				else indices.push(row + 1 + heightPosNum);
+				indices.push(row + oneSideVertexNum + heightPosNum);
+
+				if (row === oneSideVertexNum - 1) {
+					indices.push(0 + heightPosNum);
+					indices.push(oneSideVertexNum + heightPosNum);
+				} else {
+					indices.push(row + 1 + heightPosNum);
+					indices.push(row + 1 + oneSideVertexNum + heightPosNum);
+				}
+
+				indices.push(row + oneSideVertexNum + heightPosNum);
 			}
 		}
-         */
 
-		// indices = new Uint16Array(indices);
+		let bottomVertexNum = oneSideVertexNum * (heightSegments + 1);
+
+        /**
+         * bottom/top side of box
+         */
+        
+		if (widthSegments - 2 > 0 && depthSegments - 2 > 0) {
+			for (let zz = 1; zz < depthSegments - 1; zz++) {
+				let depthRow = (depthSegments - 1) * (zz - 1);
+				for (let xx = 1; xx < widthSegments - 1; xx++) {
+					indices.push(bottomVertexNum + xx - 1 + depthRow);
+					indices.push(
+						bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow
+					);
+					indices.push(bottomVertexNum + xx + depthRow);
+
+					indices.push(bottomVertexNum + xx + depthRow);
+					indices.push(
+						bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow
+					);
+					indices.push(
+						bottomVertexNum + xx + widthSegments - 1 + depthRow
+					);
+				}
+			}
+		}
+
+		indices = new Uint16Array(indices);
 
 		return indices;
 	}
