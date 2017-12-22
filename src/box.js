@@ -6,9 +6,11 @@ import {
 	baseShaderFragSrc,
 	baseShaderVertSrc,
 	base2ShaderVertSrc,
-	base2ShaderFragSrc
+	base2ShaderFragSrc,
+	wireFrameFragSrc
 } from './shaders/base.shader';
 import { Program, ArrayBuffer, IndexArrayBuffer, VAO } from 'tubugl-core';
+
 import {
 	CULL_FACE,
 	FRONT,
@@ -20,8 +22,11 @@ import {
 	SRC_ALPHA,
 	ONE,
 	ZERO,
-	BLEND
+	BLEND,
+	LINES
 } from 'tubugl-constants';
+
+import { generateWireframeIndices } from 'tubugl-utils';
 
 export class Box extends EventEmitter {
 	constructor(
@@ -57,7 +62,12 @@ export class Box extends EventEmitter {
 		this._scale = new Float32Array([1, 1, 1]);
 
 		this._makeProgram(params);
-		this._makBuffer();
+		this._makeBuffer();
+
+		if (this._isWire) {
+			this._makeWireframe();
+			this._makeWireframeBuffer();
+		}
 	}
 
 	setPosition(x, y, z) {
@@ -88,26 +98,21 @@ export class Box extends EventEmitter {
 			? params.vertexShaderSrc
 			: this._isGl2 ? base2ShaderVertSrc : baseShaderVertSrc;
 
-		this._program = new Program(
-			this._gl,
-			vertexShaderSrc,
-			fragmentShaderSrc
-		);
+		this._program = new Program(this._gl, vertexShaderSrc, fragmentShaderSrc);
 	}
 
-	_makBuffer() {
+	_makeWireframe() {
+		this._wireframeProgram = new Program(this._gl, baseShaderVertSrc, wireFrameFragSrc);
+	}
+
+	_makeBuffer() {
 		if (this._isGl2) {
 			this._vao = new VAO(this._gl);
 			this._vao.bind();
 		}
 
 		let cornerVertices = 8;
-		let edgeVertices =
-			(this._widthSegments +
-				this._heightSegments +
-				this._depthSegments -
-				3) *
-			4;
+		let edgeVertices = (this._widthSegments + this._heightSegments + this._depthSegments - 3) * 4;
 		let faceVertices =
 			((this._widthSegments - 1) * (this._heightSegments - 1) +
 				(this._widthSegments - 1) * (this._depthSegments - 1) +
@@ -128,64 +133,47 @@ export class Box extends EventEmitter {
 		);
 		this._positionBuffer.setAttribs('position', 3);
 
-		/**
-		this._barycentricPositionBuffer = new ArrayBuffer(
-			this._gl,
-			Plane._getBarycentricVertices(this._segmentW, this._segmentH)
-		);
-		this._barycentricPositionBuffer.setAttribs('barycentricPosition', 3);
-		*/
-
 		if (this._vao) {
 			this._positionBuffer.bind().attribPointer(this._program);
-			//this._barycentricPositionBuffer.bind().attribPointer(this._program);
 		}
 
-		let indices = Box.getIndices(
-			this._widthSegments,
-			this._heightSegments,
-			this._depthSegments
+		this._indexBuffer = new IndexArrayBuffer(
+			this._gl,
+			Box.getIndices(this._widthSegments, this._heightSegments, this._depthSegments)
 		);
-		this._indexBuffer = new IndexArrayBuffer(this._gl, indices);
-		this._cnt = indices.length;
+		this._cnt = this._indexBuffer.dataArray.length;
+	}
 
-		// if (this._isWire) {
-		// 	Plane._getWireframeIndices(this._indexBuffer);
-		// }
+	_makeWireframeBuffer() {
+		this._wireframeIndexBuffer = new IndexArrayBuffer(
+			this._gl,
+			generateWireframeIndices(this._indexBuffer.dataArray)
+		);
+		console.log(this._wireframeIndexBuffer);
+		this._wireframeIndexCnt = this._wireframeIndexBuffer.dataArray.length;
+		console.log(this._wireframeIndexCnt);
 	}
 
 	update(camera) {
+		this._camaera = camera;
 		this._updateModelMatrix();
 
-		this._program.bind();
+		let prg = this._program;
+		prg.bind();
 
 		if (this._vao) {
 			this._vao.bind();
 		} else {
-			this._positionBuffer.bind().attribPointer(this._program);
-			// this._barycentricPositionBuffer.bind().attribPointer(this._program);
+			this._positionBuffer.bind().attribPointer(prg);
+			// if (this._isWire) this._wireframeIndexBuffer.bind();
 			this._indexBuffer.bind();
 		}
 
-		// this._gl.uniform1f(
-		// 	this._program.getUniforms('uWireframe').location,
-		// 	this._isWire
-		// );
-		this._gl.uniformMatrix4fv(
-			this._program.getUniforms('modelMatrix').location,
-			false,
-			this._modelMatrix
-		);
-		this._gl.uniformMatrix4fv(
-			this._program.getUniforms('viewMatrix').location,
-			false,
-			camera.viewMatrix
-		);
-		this._gl.uniformMatrix4fv(
-			this._program.getUniforms('projectionMatrix').location,
-			false,
-			camera.projectionMatrix
-		);
+		this._gl.uniformMatrix4fv(prg.getUniforms('modelMatrix').location, false, this._modelMatrix);
+		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
+		this._gl.uniformMatrix4fv(prg.getUniforms('projectionMatrix').location, false, camera.projectionMatrix);
+
+		// prg.bind();
 
 		return this;
 	}
@@ -212,24 +200,39 @@ export class Box extends EventEmitter {
 			this._gl.disable(BLEND);
 		}
 
-		this._gl.drawArrays(
-			POINTS,
-			0,
-			this._positionBuffer.dataArray.length / 3
-		);
 		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
 
-		// console.log(this._positionBuffer.dataArray.length / 3);
-
-		// console.log(this._positionBuffer);
-
+		if (this._isWire) this._drawWireframe();
 		return this;
 	}
 
 	resize() {}
 
 	addGui(gui) {
-		gui.add(this, '_isWire').name('isWire');
+		gui
+			.add(this, '_isWire')
+			.name('isWire')
+			.onChange(() => {
+				if (this._isWire && !this._wireframeProgram) {
+					this._makeWireframe();
+					this._makeWireframeBuffer();
+				}
+			});
+	}
+
+	_drawWireframe() {
+		let camera = this._camaera;
+		let prg = this._wireframeProgram;
+
+		prg.bind();
+		this._positionBuffer.bind().attribPointer(prg);
+		this._wireframeIndexBuffer.bind();
+
+		this._gl.uniformMatrix4fv(prg.getUniforms('modelMatrix').location, false, this._modelMatrix);
+		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
+		this._gl.uniformMatrix4fv(prg.getUniforms('projectionMatrix').location, false, camera.projectionMatrix);
+
+		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
 	}
 
 	_updateModelMatrix() {
@@ -247,14 +250,7 @@ export class Box extends EventEmitter {
 		return this;
 	}
 
-	static getVertices(
-		width,
-		height,
-		depth,
-		widthSegments,
-		heightSegments,
-		depthSegments
-	) {
+	static getVertices(width, height, depth, widthSegments, heightSegments, depthSegments) {
 		let xx, yy, zz;
 		let vertices = [];
 		let verticeNum = 0;
@@ -345,17 +341,14 @@ export class Box extends EventEmitter {
 
 	static getIndices(widthSegments, heightSegments, depthSegments) {
 		let indices = [];
+		let oneSideVertexNum = 2 * (widthSegments + depthSegments);
 
-		let oneSideVertexNum =
-			4 + 2 * (widthSegments - 1) + 2 * (depthSegments - 1);
-
-		for (let height = 0; height < heightSegments ; height++) {
+		for (let height = 0; height < heightSegments; height++) {
 			let heightPosNum = oneSideVertexNum * height;
 
 			for (let row = 0; row < oneSideVertexNum; row++) {
 				indices.push(row + heightPosNum);
-				if (row === oneSideVertexNum - 1)
-					indices.push(0 + heightPosNum);
+				if (row === oneSideVertexNum - 1) indices.push(0 + heightPosNum);
 				else indices.push(row + 1 + heightPosNum);
 				indices.push(row + oneSideVertexNum + heightPosNum);
 
@@ -371,34 +364,211 @@ export class Box extends EventEmitter {
 			}
 		}
 
-		let bottomVertexNum = oneSideVertexNum * (heightSegments + 1);
+		indices = indices.concat(Box.setSideIndex(widthSegments, heightSegments, depthSegments, 'top'));
+		indices = indices.concat(Box.setSideIndex(widthSegments, heightSegments, depthSegments, 'bottom'));
 
-        /**
-         * bottom/top side of box
-         */
-        
-		if (widthSegments - 2 > 0 && depthSegments - 2 > 0) {
-			for (let zz = 1; zz < depthSegments - 1; zz++) {
-				let depthRow = (depthSegments - 1) * (zz - 1);
-				for (let xx = 1; xx < widthSegments - 1; xx++) {
-					indices.push(bottomVertexNum + xx - 1 + depthRow);
-					indices.push(
-						bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow
-					);
-					indices.push(bottomVertexNum + xx + depthRow);
+		indices = new Uint16Array(indices);
 
-					indices.push(bottomVertexNum + xx + depthRow);
-					indices.push(
-						bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow
-					);
-					indices.push(
-						bottomVertexNum + xx + widthSegments - 1 + depthRow
-					);
+		return indices;
+	}
+
+	static setSideIndex(widthSegments, heightSegments, depthSegments, side) {
+		let indices = [];
+		let oneSideVertexNum = 2 * (widthSegments + depthSegments);
+		let startNum = side === 'bottom' ? 0 : oneSideVertexNum * heightSegments;
+		let bottomVertexNum =
+			side === 'bottom'
+				? oneSideVertexNum * (heightSegments + 1)
+				: oneSideVertexNum * (heightSegments + 1) + (widthSegments - 1) * (depthSegments - 1);
+
+		// top-left
+		if (side === 'bottom') {
+			indices.push(1 + startNum);
+			indices.push(0 + startNum);
+		} else {
+			indices.push(0 + startNum);
+			indices.push(1 + startNum);
+		}
+		indices.push(bottomVertexNum);
+
+		if (side === 'bottom') {
+			indices.push(bottomVertexNum);
+			indices.push(0 + startNum);
+		} else {
+			indices.push(0 + startNum);
+			indices.push(bottomVertexNum);
+		}
+		indices.push((widthSegments + depthSegments) * 2 - 1 + startNum);
+
+		// top-right
+		if (side === 'bottom') {
+			indices.push(widthSegments + startNum);
+			indices.push(widthSegments - 1 + startNum);
+		} else {
+			indices.push(widthSegments - 1 + startNum);
+			indices.push(widthSegments + startNum);
+		}
+		indices.push(bottomVertexNum + widthSegments - 2);
+
+		if (side === 'bottom') {
+			indices.push(widthSegments + 1 + startNum);
+			indices.push(widthSegments + startNum);
+		} else {
+			indices.push(widthSegments + startNum);
+			indices.push(widthSegments + 1 + startNum);
+		}
+		indices.push(bottomVertexNum + widthSegments - 2);
+
+		//bottom-right
+		if (side === 'bottom') {
+			indices.push(widthSegments + depthSegments + startNum);
+			indices.push(widthSegments + depthSegments - 1 + startNum);
+		} else {
+			indices.push(widthSegments + depthSegments - 1 + startNum);
+			indices.push(widthSegments + depthSegments + startNum);
+		}
+		indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - 1);
+
+		if (side === 'bottom') {
+			indices.push(widthSegments + depthSegments + 1 + startNum);
+			indices.push(widthSegments + depthSegments + startNum);
+		} else {
+			indices.push(widthSegments + depthSegments + startNum);
+			indices.push(widthSegments + depthSegments + 1 + startNum);
+		}
+		indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - 1);
+
+		// bottom-right
+		if (side === 'bottom') {
+			indices.push(2 * widthSegments + depthSegments + startNum);
+			indices.push(2 * widthSegments + depthSegments - 1 + startNum);
+		} else {
+			indices.push(2 * widthSegments + depthSegments - 1 + startNum);
+			indices.push(2 * widthSegments + depthSegments + startNum);
+		}
+		indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 2));
+
+		if (side === 'bottom') {
+			indices.push(2 * widthSegments + depthSegments + 1 + startNum);
+			indices.push(2 * widthSegments + depthSegments + startNum);
+		} else {
+			indices.push(2 * widthSegments + depthSegments + startNum);
+			indices.push(2 * widthSegments + depthSegments + 1 + startNum);
+		}
+		indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 2));
+
+		if (widthSegments - 2 > 0) {
+			for (let xx = 1; xx < widthSegments - 1; xx++) {
+				if (side === 'bottom') {
+					indices.push(xx + 1 + startNum);
+					indices.push(xx + startNum);
+				} else {
+					indices.push(xx + startNum);
+					indices.push(xx + 1 + startNum);
 				}
+				indices.push(bottomVertexNum + (xx - 1));
+
+				if (side === 'bottom') {
+					indices.push(xx + 1 + startNum);
+					indices.push(bottomVertexNum + (xx - 1));
+				} else {
+					indices.push(bottomVertexNum + (xx - 1));
+					indices.push(xx + 1 + startNum);
+				}
+				indices.push(bottomVertexNum + xx);
+			}
+
+			for (let xx = 1; xx < widthSegments - 1; xx++) {
+				if (side === 'bottom') {
+					indices.push(widthSegments + depthSegments + 1 + xx + startNum);
+					indices.push(widthSegments + depthSegments + xx + startNum);
+				} else {
+					indices.push(widthSegments + depthSegments + xx + startNum);
+					indices.push(widthSegments + depthSegments + 1 + xx + startNum);
+				}
+				indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - xx);
+
+				if (side === 'bottom') {
+					indices.push(widthSegments + depthSegments + 1 + xx + startNum);
+					indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - xx);
+				} else {
+					indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - xx);
+					indices.push(widthSegments + depthSegments + 1 + xx + startNum);
+				}
+				indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - xx - 1);
+			}
+
+			// indices.push(bottomVertexNum + (widthSegments - 1) * zz - 1);
+		}
+
+		if (depthSegments - 2 > 0) {
+			for (let zz = 1; zz < depthSegments - 1; zz++) {
+				if (side === 'bottom') {
+					indices.push(zz + 1 + widthSegments + startNum);
+					indices.push(zz + widthSegments + startNum);
+				} else {
+					indices.push(zz + widthSegments + startNum);
+					indices.push(zz + 1 + widthSegments + startNum);
+				}
+				indices.push(bottomVertexNum + (widthSegments - 1) * zz - 1);
+
+				if (side === 'bottom') {
+					indices.push(zz + 1 + widthSegments + startNum);
+					indices.push(bottomVertexNum + (widthSegments - 1) * zz - 1);
+				} else {
+					indices.push(bottomVertexNum + (widthSegments - 1) * zz - 1);
+					indices.push(zz + 1 + widthSegments + startNum);
+				}
+				indices.push(bottomVertexNum + (widthSegments - 1) * (zz + 1) - 1);
+			}
+
+			for (let zz = 1; zz < depthSegments - 1; zz++) {
+				if (side === 'bottom') {
+					indices.push(widthSegments * 2 + depthSegments + zz + 1 + startNum);
+					indices.push(widthSegments * 2 + depthSegments + zz + startNum);
+				} else {
+					indices.push(widthSegments * 2 + depthSegments + zz + startNum);
+					indices.push(widthSegments * 2 + depthSegments + zz + 1 + startNum);
+				}
+				indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1 - zz));
+
+				if (side === 'bottom') {
+					indices.push(widthSegments * 2 + depthSegments + zz + 1 + startNum);
+					indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1 - zz));
+				} else {
+					indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1 - zz));
+					indices.push(widthSegments * 2 + depthSegments + zz + 1 + startNum);
+				}
+
+				indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1 - zz - 1));
 			}
 		}
 
-		indices = new Uint16Array(indices);
+		if (widthSegments - 2 > 0 && depthSegments - 2 > 0) {
+			for (let zz = 1; zz < depthSegments - 1; zz++) {
+				let depthRow = (widthSegments - 1) * (zz - 1);
+
+				for (let xx = 1; xx < widthSegments - 1; xx++) {
+					if (side === 'bottom') {
+						indices.push(bottomVertexNum + xx - 1 + depthRow);
+						indices.push(bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow);
+					} else {
+						indices.push(bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow);
+						indices.push(bottomVertexNum + xx - 1 + depthRow);
+					}
+					indices.push(bottomVertexNum + xx + depthRow);
+
+					if (side === 'bottom') {
+						indices.push(bottomVertexNum + xx + depthRow);
+						indices.push(bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow);
+					} else {
+						indices.push(bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow);
+						indices.push(bottomVertexNum + xx + depthRow);
+					}
+					indices.push(bottomVertexNum + xx + widthSegments - 1 + depthRow);
+				}
+			}
+		}
 
 		return indices;
 	}

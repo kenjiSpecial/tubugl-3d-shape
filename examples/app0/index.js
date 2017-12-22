@@ -6,11 +6,7 @@ const dat = require('dat.gui/build/dat.gui.min');
 const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
-import {
-	COLOR_BUFFER_BIT,
-	DEPTH_BUFFER_BIT,
-	DEPTH_TEST
-} from 'tubugl-constants';
+import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, DEPTH_TEST } from 'tubugl-constants';
 import { Box } from '../../index';
 import { PerspectiveCamera } from 'tubugl-camera';
 
@@ -51,6 +47,7 @@ export default class App {
 
 		let gl = this.gl;
 		gl.viewport(0, 0, this._width, this._height);
+
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		this._camera
 			.updatePosition(
@@ -70,7 +67,7 @@ export default class App {
 	mouseMoveHandler(mouse) {
 		if (!this._isMouseDown) return;
 		this._camera.theta += (mouse.x - this._prevMouse.x) * Math.PI * 2;
-		this._camera.phi  += (mouse.y - this._prevMouse.y) * Math.PI * 2;
+		this._camera.phi += (mouse.y - this._prevMouse.y) * -Math.PI * 2;
 
 		this._prevMouse = mouse;
 	}
@@ -120,7 +117,7 @@ export default class App {
 		this.gl.enable(DEPTH_TEST);
 	}
 	_makeBox() {
-		this._box = new Box(this.gl, 200, 200, 200, 4, 4, 4, {
+		this._box = new Box(this.gl, 200, 200, 200, 4, 5, 6, {
 			isWire: false
 		});
 		this._box.posTheta = 0;
@@ -128,7 +125,15 @@ export default class App {
 	}
 
 	_makeCamera() {
-		this._camera = new PerspectiveCamera([0, 0, 500], [0, 0, 0], window.innerWidth, window.innerHeight, 60, 1, 2000);
+		this._camera = new PerspectiveCamera(
+			[0, 0, 500],
+			[0, 0, 0],
+			window.innerWidth,
+			window.innerHeight,
+			60,
+			1,
+			2000
+		);
 		this._camera.theta = 0;
 		this._camera.phi = 0;
 		this._camera.rad1 = 800;

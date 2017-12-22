@@ -33,6 +33,14 @@ void main() {
 
 }`;
 
+export const wireFrameFragSrc = `
+precision mediump float;
+
+void main(){
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+`;
+
 export const base2ShaderVertSrc = `#version 300 es
 in vec4 position;
 in vec3 barycentricPosition;
