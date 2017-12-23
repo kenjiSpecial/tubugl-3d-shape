@@ -41,10 +41,6 @@ export default class App {
 	loop() {
 		if (this.stats) this.stats.update();
 
-		// this.gl.clearColor(0, 0, 0, 1);
-		// this.gl.clearDepth(1);
-		// this.gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
-
 		let gl = this.gl;
 		gl.viewport(0, 0, this._width, this._height);
 
@@ -109,6 +105,7 @@ export default class App {
 		this.gl.viewport(0, 0, this._width, this._height);
 
 		this._box.resize(this._width, this._height);
+		this._camera.updateSize(this._width, this._height);
 	}
 
 	destroy() {}
@@ -125,15 +122,7 @@ export default class App {
 	}
 
 	_makeCamera() {
-		this._camera = new PerspectiveCamera(
-			[0, 0, 500],
-			[0, 0, 0],
-			window.innerWidth,
-			window.innerHeight,
-			60,
-			1,
-			2000
-		);
+		this._camera = new PerspectiveCamera(window.innerWidth, window.innerHeight, 60, 1, 2000);
 		this._camera.theta = 0;
 		this._camera.phi = 0;
 		this._camera.rad1 = 800;

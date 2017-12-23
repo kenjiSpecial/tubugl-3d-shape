@@ -15,7 +15,6 @@ import {
 	CULL_FACE,
 	FRONT,
 	BACK,
-	POINTS,
 	TRIANGLES,
 	UNSIGNED_SHORT,
 	DEPTH_TEST,
@@ -112,7 +111,8 @@ export class Box extends EventEmitter {
 		}
 
 		let cornerVertices = 8;
-		let edgeVertices = (this._widthSegments + this._heightSegments + this._depthSegments - 3) * 4;
+		let edgeVertices =
+			(this._widthSegments + this._heightSegments + this._depthSegments - 3) * 4;
 		let faceVertices =
 			((this._widthSegments - 1) * (this._heightSegments - 1) +
 				(this._widthSegments - 1) * (this._depthSegments - 1) +
@@ -165,15 +165,20 @@ export class Box extends EventEmitter {
 			this._vao.bind();
 		} else {
 			this._positionBuffer.bind().attribPointer(prg);
-			// if (this._isWire) this._wireframeIndexBuffer.bind();
 			this._indexBuffer.bind();
 		}
 
-		this._gl.uniformMatrix4fv(prg.getUniforms('modelMatrix').location, false, this._modelMatrix);
+		this._gl.uniformMatrix4fv(
+			prg.getUniforms('modelMatrix').location,
+			false,
+			this._modelMatrix
+		);
 		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
-		this._gl.uniformMatrix4fv(prg.getUniforms('projectionMatrix').location, false, camera.projectionMatrix);
-
-		// prg.bind();
+		this._gl.uniformMatrix4fv(
+			prg.getUniforms('projectionMatrix').location,
+			false,
+			camera.projectionMatrix
+		);
 
 		return this;
 	}
@@ -228,9 +233,17 @@ export class Box extends EventEmitter {
 		this._positionBuffer.bind().attribPointer(prg);
 		this._wireframeIndexBuffer.bind();
 
-		this._gl.uniformMatrix4fv(prg.getUniforms('modelMatrix').location, false, this._modelMatrix);
+		this._gl.uniformMatrix4fv(
+			prg.getUniforms('modelMatrix').location,
+			false,
+			this._modelMatrix
+		);
 		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
-		this._gl.uniformMatrix4fv(prg.getUniforms('projectionMatrix').location, false, camera.projectionMatrix);
+		this._gl.uniformMatrix4fv(
+			prg.getUniforms('projectionMatrix').location,
+			false,
+			camera.projectionMatrix
+		);
 
 		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
 	}
@@ -364,211 +377,181 @@ export class Box extends EventEmitter {
 			}
 		}
 
-		indices = indices.concat(Box.setSideIndex(widthSegments, heightSegments, depthSegments, 'top'));
-		indices = indices.concat(Box.setSideIndex(widthSegments, heightSegments, depthSegments, 'bottom'));
+		indices = indices.concat(
+			Box.createFace(widthSegments, heightSegments, depthSegments, false)
+		);
+		indices = indices.concat(Box.createFace(widthSegments, heightSegments, depthSegments));
 
 		indices = new Uint16Array(indices);
 
 		return indices;
 	}
 
-	static setSideIndex(widthSegments, heightSegments, depthSegments, side) {
+	static createFace(widthSegments, heightSegments, depthSegments, isTop = true) {
 		let indices = [];
-		let oneSideVertexNum = 2 * (widthSegments + depthSegments);
-		let startNum = side === 'bottom' ? 0 : oneSideVertexNum * heightSegments;
-		let bottomVertexNum =
-			side === 'bottom'
-				? oneSideVertexNum * (heightSegments + 1)
-				: oneSideVertexNum * (heightSegments + 1) + (widthSegments - 1) * (depthSegments - 1);
+		let ring = 2 * (widthSegments + depthSegments);
+		let sideNum = isTop
+			? ring * (heightSegments + 1) + (depthSegments - 1) * (widthSegments - 1)
+			: ring * (heightSegments + 1);
+		let startNum = isTop ? ring * heightSegments : 0;
+		let setQuad = isTop ? Box.setTopQuad : Box.setQuad;
 
-		// top-left
-		if (side === 'bottom') {
-			indices.push(1 + startNum);
-			indices.push(0 + startNum);
-		} else {
-			indices.push(0 + startNum);
-			indices.push(1 + startNum);
-		}
-		indices.push(bottomVertexNum);
-
-		if (side === 'bottom') {
-			indices.push(bottomVertexNum);
-			indices.push(0 + startNum);
-		} else {
-			indices.push(0 + startNum);
-			indices.push(bottomVertexNum);
-		}
-		indices.push((widthSegments + depthSegments) * 2 - 1 + startNum);
-
-		// top-right
-		if (side === 'bottom') {
-			indices.push(widthSegments + startNum);
-			indices.push(widthSegments - 1 + startNum);
-		} else {
-			indices.push(widthSegments - 1 + startNum);
-			indices.push(widthSegments + startNum);
-		}
-		indices.push(bottomVertexNum + widthSegments - 2);
-
-		if (side === 'bottom') {
-			indices.push(widthSegments + 1 + startNum);
-			indices.push(widthSegments + startNum);
-		} else {
-			indices.push(widthSegments + startNum);
-			indices.push(widthSegments + 1 + startNum);
-		}
-		indices.push(bottomVertexNum + widthSegments - 2);
-
-		//bottom-right
-		if (side === 'bottom') {
-			indices.push(widthSegments + depthSegments + startNum);
-			indices.push(widthSegments + depthSegments - 1 + startNum);
-		} else {
-			indices.push(widthSegments + depthSegments - 1 + startNum);
-			indices.push(widthSegments + depthSegments + startNum);
-		}
-		indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - 1);
-
-		if (side === 'bottom') {
-			indices.push(widthSegments + depthSegments + 1 + startNum);
-			indices.push(widthSegments + depthSegments + startNum);
-		} else {
-			indices.push(widthSegments + depthSegments + startNum);
-			indices.push(widthSegments + depthSegments + 1 + startNum);
-		}
-		indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - 1);
-
-		// bottom-right
-		if (side === 'bottom') {
-			indices.push(2 * widthSegments + depthSegments + startNum);
-			indices.push(2 * widthSegments + depthSegments - 1 + startNum);
-		} else {
-			indices.push(2 * widthSegments + depthSegments - 1 + startNum);
-			indices.push(2 * widthSegments + depthSegments + startNum);
-		}
-		indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 2));
-
-		if (side === 'bottom') {
-			indices.push(2 * widthSegments + depthSegments + 1 + startNum);
-			indices.push(2 * widthSegments + depthSegments + startNum);
-		} else {
-			indices.push(2 * widthSegments + depthSegments + startNum);
-			indices.push(2 * widthSegments + depthSegments + 1 + startNum);
-		}
-		indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 2));
-
-		if (widthSegments - 2 > 0) {
-			for (let xx = 1; xx < widthSegments - 1; xx++) {
-				if (side === 'bottom') {
-					indices.push(xx + 1 + startNum);
-					indices.push(xx + startNum);
-				} else {
-					indices.push(xx + startNum);
-					indices.push(xx + 1 + startNum);
+		if (widthSegments === 1 || depthSegments === 1) {
+			let segments = Math.max(widthSegments, depthSegments);
+			if (widthSegments === 1) {
+				for (let ii = 0; ii < segments; ii++) {
+					if (ii === 0)
+						indices = indices.concat(
+							setQuad(
+								startNum + ii,
+								startNum + ii + 1,
+								startNum + ii + 2,
+								startNum + ring - 1 - ii
+							)
+						);
+					else
+						indices = indices.concat(
+							setQuad(
+								startNum + ring - ii,
+								startNum + ii + 1,
+								startNum + ii + 2,
+								startNum + ring - 1 - ii
+							)
+						);
 				}
-				indices.push(bottomVertexNum + (xx - 1));
-
-				if (side === 'bottom') {
-					indices.push(xx + 1 + startNum);
-					indices.push(bottomVertexNum + (xx - 1));
-				} else {
-					indices.push(bottomVertexNum + (xx - 1));
-					indices.push(xx + 1 + startNum);
-				}
-				indices.push(bottomVertexNum + xx);
-			}
-
-			for (let xx = 1; xx < widthSegments - 1; xx++) {
-				if (side === 'bottom') {
-					indices.push(widthSegments + depthSegments + 1 + xx + startNum);
-					indices.push(widthSegments + depthSegments + xx + startNum);
-				} else {
-					indices.push(widthSegments + depthSegments + xx + startNum);
-					indices.push(widthSegments + depthSegments + 1 + xx + startNum);
-				}
-				indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - xx);
-
-				if (side === 'bottom') {
-					indices.push(widthSegments + depthSegments + 1 + xx + startNum);
-					indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - xx);
-				} else {
-					indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - xx);
-					indices.push(widthSegments + depthSegments + 1 + xx + startNum);
-				}
-				indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1) - xx - 1);
-			}
-
-			// indices.push(bottomVertexNum + (widthSegments - 1) * zz - 1);
-		}
-
-		if (depthSegments - 2 > 0) {
-			for (let zz = 1; zz < depthSegments - 1; zz++) {
-				if (side === 'bottom') {
-					indices.push(zz + 1 + widthSegments + startNum);
-					indices.push(zz + widthSegments + startNum);
-				} else {
-					indices.push(zz + widthSegments + startNum);
-					indices.push(zz + 1 + widthSegments + startNum);
-				}
-				indices.push(bottomVertexNum + (widthSegments - 1) * zz - 1);
-
-				if (side === 'bottom') {
-					indices.push(zz + 1 + widthSegments + startNum);
-					indices.push(bottomVertexNum + (widthSegments - 1) * zz - 1);
-				} else {
-					indices.push(bottomVertexNum + (widthSegments - 1) * zz - 1);
-					indices.push(zz + 1 + widthSegments + startNum);
-				}
-				indices.push(bottomVertexNum + (widthSegments - 1) * (zz + 1) - 1);
-			}
-
-			for (let zz = 1; zz < depthSegments - 1; zz++) {
-				if (side === 'bottom') {
-					indices.push(widthSegments * 2 + depthSegments + zz + 1 + startNum);
-					indices.push(widthSegments * 2 + depthSegments + zz + startNum);
-				} else {
-					indices.push(widthSegments * 2 + depthSegments + zz + startNum);
-					indices.push(widthSegments * 2 + depthSegments + zz + 1 + startNum);
-				}
-				indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1 - zz));
-
-				if (side === 'bottom') {
-					indices.push(widthSegments * 2 + depthSegments + zz + 1 + startNum);
-					indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1 - zz));
-				} else {
-					indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1 - zz));
-					indices.push(widthSegments * 2 + depthSegments + zz + 1 + startNum);
-				}
-
-				indices.push(bottomVertexNum + (widthSegments - 1) * (depthSegments - 1 - zz - 1));
-			}
-		}
-
-		if (widthSegments - 2 > 0 && depthSegments - 2 > 0) {
-			for (let zz = 1; zz < depthSegments - 1; zz++) {
-				let depthRow = (widthSegments - 1) * (zz - 1);
-
-				for (let xx = 1; xx < widthSegments - 1; xx++) {
-					if (side === 'bottom') {
-						indices.push(bottomVertexNum + xx - 1 + depthRow);
-						indices.push(bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow);
-					} else {
-						indices.push(bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow);
-						indices.push(bottomVertexNum + xx - 1 + depthRow);
-					}
-					indices.push(bottomVertexNum + xx + depthRow);
-
-					if (side === 'bottom') {
-						indices.push(bottomVertexNum + xx + depthRow);
-						indices.push(bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow);
-					} else {
-						indices.push(bottomVertexNum + xx + widthSegments - 1 - 1 + depthRow);
-						indices.push(bottomVertexNum + xx + depthRow);
-					}
-					indices.push(bottomVertexNum + xx + widthSegments - 1 + depthRow);
+			} else {
+				for (let ii = 0; ii < segments; ii++) {
+					indices = indices.concat(
+						setQuad(
+							startNum + ii,
+							startNum + ii + 1,
+							startNum + ring - 2 - ii,
+							startNum + ring - 1 - ii
+						)
+					);
 				}
 			}
+		} else {
+			indices = indices.concat(setQuad(startNum, startNum + 1, sideNum, startNum + ring - 1));
+
+			for (let ii = 1; ii < widthSegments - 1; ii++) {
+				indices = indices.concat(
+					setQuad(startNum + ii, startNum + ii + 1, sideNum + ii, sideNum + ii - 1)
+				);
+			}
+
+			indices = indices.concat(
+				setQuad(
+					startNum + widthSegments - 1,
+					startNum + widthSegments,
+					startNum + widthSegments + 1,
+					sideNum + widthSegments - 2
+				)
+			);
+
+			for (let jj = 1; jj < depthSegments - 1; jj++) {
+				indices = indices.concat(
+					setQuad(
+						startNum + ring - jj,
+						sideNum + (jj - 1) * (widthSegments - 1),
+						sideNum + jj * (widthSegments - 1),
+						startNum + ring - jj - 1
+					)
+				);
+
+				for (let ii = 1; ii < widthSegments - 1; ii++) {
+					indices = indices.concat(
+						setQuad(
+							sideNum + ii - 1 + (jj - 1) * (widthSegments - 1),
+							sideNum + ii + (jj - 1) * (widthSegments - 1),
+							sideNum + ii + jj * (widthSegments - 1),
+							sideNum + ii + jj * (widthSegments - 1) - 1
+						)
+					);
+				}
+
+				indices = indices.concat(
+					setQuad(
+						sideNum + jj * (widthSegments - 1) - 1,
+						startNum + widthSegments + jj,
+						startNum + widthSegments + jj + 1,
+						sideNum + (jj + 1) * (widthSegments - 1) - 1
+					)
+				);
+			}
+
+			indices = indices.concat(
+				setQuad(
+					startNum + ring - depthSegments + 1,
+					sideNum + (depthSegments - 2) * (widthSegments - 1),
+					startNum + ring - depthSegments - 1,
+					startNum + ring - depthSegments
+				)
+			);
+
+			for (let ii = 1; ii < widthSegments - 1; ii++) {
+				indices = indices.concat(
+					setQuad(
+						sideNum + (depthSegments - 2) * (widthSegments - 1) + ii - 1,
+						sideNum + (depthSegments - 2) * (widthSegments - 1) + ii,
+						startNum + ring - depthSegments - ii - 1,
+						startNum + ring - depthSegments - ii
+					)
+				);
+			}
+
+			indices = indices.concat(
+				setQuad(
+					sideNum + (depthSegments - 1) * (widthSegments - 1) - 1,
+					startNum + widthSegments + depthSegments - 1,
+					startNum + widthSegments + depthSegments,
+					startNum + widthSegments + depthSegments + 1
+				)
+			);
 		}
+
+		return indices;
+	}
+	/**
+	 *
+	 *
+	 * @param {Number} a
+	 * @param {Number} b
+	 * @param {Number} c
+	 * @param {Number} d
+	 */
+	static setTopQuad(a, b, c, d) {
+		let indices = [];
+
+		indices.push(a);
+		indices.push(b);
+		indices.push(c);
+
+		indices.push(c);
+		indices.push(d);
+		indices.push(a);
+
+		return indices;
+	}
+
+	/**
+	 *
+	 *
+	 * @param {Number} a
+	 * @param {Number} b
+	 * @param {Number} c
+	 * @param {Number} d
+	 */
+	static setQuad(a, b, c, d) {
+		let indices = [];
+
+		indices.push(b);
+		indices.push(a);
+		indices.push(c);
+
+		indices.push(d);
+		indices.push(c);
+		indices.push(a);
 
 		return indices;
 	}
