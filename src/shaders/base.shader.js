@@ -19,13 +19,7 @@ precision mediump float;
 
 uniform bool uWireframe;
 
-// varying vec3 vBarycentricPosition;
-
 void main() {
-    // if(uWireframe){
-    //     float minBarycentricVal = min(min(vBarycentricPosition.x, vBarycentricPosition.y), vBarycentricPosition.z);
-    //     if(minBarycentricVal > 0.01) discard;
-    // }
     float colorR = gl_FrontFacing ? 1.0 : 0.0;
     float colorG = gl_FrontFacing ? 0.0 : 1.0;
     
@@ -76,3 +70,30 @@ void main() {
     outColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
 `;
+
+export const normalShaderVertSrc = `
+attribute vec4 position;
+attribute vec3 normal;
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
+
+varying vec3 vBarycentricPosition;
+varying vec3 vNormal;
+
+void main() {
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
+    vNormal = normal;
+}
+`;
+
+export const normalShaderFragSrc = `
+precision mediump float;
+
+varying vec3 vNormal;
+
+void main() {
+    vec3 faceColor = (vNormal + vec3(0.5))/2.0;
+    gl_FragColor = vec4(faceColor, 1.0);
+}`;

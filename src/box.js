@@ -1,5 +1,4 @@
 // http://catlikecoding.com/unity/tutorials/rounded-cube/
-
 const EventEmitter = require('wolfy87-eventemitter');
 import { mat4 } from 'gl-matrix/src/gl-matrix';
 import {
@@ -26,6 +25,7 @@ import {
 } from 'tubugl-constants';
 
 import { generateWireframeIndices } from 'tubugl-utils';
+import { Vector3 } from './vector3';
 
 export class Box extends EventEmitter {
 	constructor(
@@ -40,6 +40,7 @@ export class Box extends EventEmitter {
 	) {
 		super();
 
+		this._params = params;
 		this._isNeedUpdate = true;
 		this._isWire = !!params.isWire;
 		this._isDepthTest = params.isDepthTest ? params.isDepthTest : true;
@@ -56,25 +57,28 @@ export class Box extends EventEmitter {
 		this._heightSegments = heightSegments;
 		this._depthSegments = depthSegments;
 
-		this._position = new Float32Array([0, 0, 0]);
-		this._rotation = new Float32Array([0, 0, 0]);
-		this._scale = new Float32Array([1, 1, 1]);
+		this.position = new Vector3();
+		this.rotation = new Vector3();
+		this.scale = new Vector3(1, 1, 1);
 
 		this._makeProgram(params);
-		this._makeBuffer();
+		this._makeBuffers();
 
 		if (this._isWire) {
 			this._makeWireframe();
 			this._makeWireframeBuffer();
 		}
 	}
+	get modelMatrix() {
+		return this._modelMatrix;
+	}
 
 	setPosition(x, y, z) {
 		this._isNeedUpdate = true;
 
-		if (x !== undefined) this._position[0] = x;
-		if (y !== undefined) this._position[1] = y;
-		if (z !== undefined) this._position[2] = z;
+		if (x !== undefined) this.position.x = x;
+		if (y !== undefined) this.position.y = y;
+		if (z !== undefined) this.position.z = z;
 
 		return this;
 	}
@@ -82,9 +86,135 @@ export class Box extends EventEmitter {
 	setRotation(x, y, z) {
 		this._isNeedUpdate = true;
 
-		if (x !== undefined) this._rotation[0] = x;
-		if (y !== undefined) this._rotation[1] = y;
-		if (z !== undefined) this._rotation[2] = z;
+		if (x !== undefined) this.rotation.x = x;
+		if (y !== undefined) this.rotation.y = y;
+		if (z !== undefined) this.rotation.z = z;
+
+		return this;
+	}
+	getVertice() {
+		return this._positionBuffer.dataArray;
+	}
+	render(camera) {
+		this.update(camera).draw();
+		if (this._isWire) this.updateWire(camera).drawWireframe();
+	}
+
+	update(camera) {
+		this._updateModelMatrix();
+
+		let prg = this._program;
+		prg.bind();
+
+		this._updateAttributes(prg);
+
+		this._gl.uniformMatrix4fv(
+			prg.getUniforms('modelMatrix').location,
+			false,
+			this._modelMatrix
+		);
+		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
+		this._gl.uniformMatrix4fv(
+			prg.getUniforms('projectionMatrix').location,
+			false,
+			camera.projectionMatrix
+		);
+
+		return this;
+	}
+
+	updateWire(camera) {
+		let prg = this._wireframeProgram;
+
+		prg.bind();
+		this._positionBuffer.bind().attribPointer(prg);
+		this._wireframeIndexBuffer.bind();
+
+		this._gl.uniformMatrix4fv(
+			prg.getUniforms('modelMatrix').location,
+			false,
+			this._modelMatrix
+		);
+		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
+		this._gl.uniformMatrix4fv(
+			prg.getUniforms('projectionMatrix').location,
+			false,
+			camera.projectionMatrix
+		);
+
+		return this;
+	}
+
+	draw() {
+		if (this._side === 'double') {
+			this._gl.disable(CULL_FACE);
+		} else if (this._side === 'front') {
+			this._gl.enable(CULL_FACE);
+			this._gl.cullFace(BACK);
+		} else {
+			this._gl.enable(CULL_FACE);
+			this._gl.cullFace(FRONT);
+		}
+
+		if (this._isDepthTest) this._gl.enable(DEPTH_TEST);
+		else this._gl.disable(DEPTH_TEST);
+
+		if (this._isTransparent) {
+			this._gl.blendFunc(SRC_ALPHA, ONE);
+			this._gl.enable(BLEND);
+		} else {
+			this._gl.blendFunc(SRC_ALPHA, ZERO);
+			this._gl.disable(BLEND);
+		}
+
+		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+
+		return this;
+	}
+
+	resize() {}
+
+	addGui(gui) {
+		gui
+			.add(this, '_isWire')
+			.name('isWire')
+			.onChange(() => {
+				if (this._isWire && !this._wireframeProgram) {
+					this._makeWireframe();
+					this._makeWireframeBuffer();
+				}
+			});
+
+		let positionGui = gui.addFolder('position');
+		positionGui.add(this.position, 'x', -100, 100);
+		positionGui.add(this.position, 'y', -100, 100);
+		positionGui.add(this.position, 'z', -100, 100);
+
+		let rotationGui = gui.addFolder('rotation');
+		rotationGui.add(this.rotation, 'x', -Math.PI, Math.PI).step(0.01);
+		rotationGui.add(this.rotation, 'y', -Math.PI, Math.PI).step(0.01);
+		rotationGui.add(this.rotation, 'z', -Math.PI, Math.PI).step(0.01);
+	}
+
+	drawWireframe() {
+		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
+
+		return;
+	}
+
+	_updateModelMatrix() {
+		if (!this._isNeedUpdate && !this.position.needsUpdate && !this.rotation.needsUpdate) return;
+
+		mat4.fromTranslation(this._modelMatrix, this.position.array);
+		mat4.scale(this._modelMatrix, this._modelMatrix, this.scale.array);
+
+		mat4.rotateX(this._modelMatrix, this._modelMatrix, this.rotation.array[0]);
+		mat4.rotateY(this._modelMatrix, this._modelMatrix, this.rotation.array[1]);
+		mat4.rotateZ(this._modelMatrix, this._modelMatrix, this.rotation.array[2]);
+
+		this._isNeedUpdate = false;
+		this.position.needsUpdate = false;
+		this.rotation.needsUpdate = false;
 
 		return this;
 	}
@@ -104,7 +234,7 @@ export class Box extends EventEmitter {
 		this._wireframeProgram = new Program(this._gl, baseShaderVertSrc, wireFrameFragSrc);
 	}
 
-	_makeBuffer() {
+	_makeBuffers() {
 		if (this._isGl2) {
 			this._vao = new VAO(this._gl);
 			this._vao.bind();
@@ -149,118 +279,16 @@ export class Box extends EventEmitter {
 			this._gl,
 			generateWireframeIndices(this._indexBuffer.dataArray)
 		);
-		console.log(this._wireframeIndexBuffer);
 		this._wireframeIndexCnt = this._wireframeIndexBuffer.dataArray.length;
-		console.log(this._wireframeIndexCnt);
 	}
 
-	update(camera) {
-		this._camaera = camera;
-		this._updateModelMatrix();
-
-		let prg = this._program;
-		prg.bind();
-
+	_updateAttributes(prg) {
 		if (this._vao) {
 			this._vao.bind();
 		} else {
 			this._positionBuffer.bind().attribPointer(prg);
 			this._indexBuffer.bind();
 		}
-
-		this._gl.uniformMatrix4fv(
-			prg.getUniforms('modelMatrix').location,
-			false,
-			this._modelMatrix
-		);
-		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
-		this._gl.uniformMatrix4fv(
-			prg.getUniforms('projectionMatrix').location,
-			false,
-			camera.projectionMatrix
-		);
-
-		return this;
-	}
-
-	draw() {
-		if (this._side === 'double') {
-			this._gl.disable(CULL_FACE);
-		} else if (this._side === 'front') {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(BACK);
-		} else {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(FRONT);
-		}
-
-		if (this._isDepthTest) this._gl.enable(DEPTH_TEST);
-		else this._gl.disable(DEPTH_TEST);
-
-		if (this._isTransparent) {
-			this._gl.blendFunc(SRC_ALPHA, ONE);
-			this._gl.enable(BLEND);
-		} else {
-			this._gl.blendFunc(SRC_ALPHA, ZERO);
-			this._gl.disable(BLEND);
-		}
-
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
-
-		if (this._isWire) this._drawWireframe();
-		return this;
-	}
-
-	resize() {}
-
-	addGui(gui) {
-		gui
-			.add(this, '_isWire')
-			.name('isWire')
-			.onChange(() => {
-				if (this._isWire && !this._wireframeProgram) {
-					this._makeWireframe();
-					this._makeWireframeBuffer();
-				}
-			});
-	}
-
-	_drawWireframe() {
-		let camera = this._camaera;
-		let prg = this._wireframeProgram;
-
-		prg.bind();
-		this._positionBuffer.bind().attribPointer(prg);
-		this._wireframeIndexBuffer.bind();
-
-		this._gl.uniformMatrix4fv(
-			prg.getUniforms('modelMatrix').location,
-			false,
-			this._modelMatrix
-		);
-		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
-		this._gl.uniformMatrix4fv(
-			prg.getUniforms('projectionMatrix').location,
-			false,
-			camera.projectionMatrix
-		);
-
-		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
-	}
-
-	_updateModelMatrix() {
-		if (!this._isNeedUpdate) return;
-
-		mat4.fromTranslation(this._modelMatrix, this._position);
-		mat4.scale(this._modelMatrix, this._modelMatrix, this._scale);
-
-		mat4.rotateX(this._modelMatrix, this._modelMatrix, this._rotation[0]);
-		mat4.rotateY(this._modelMatrix, this._modelMatrix, this._rotation[1]);
-		mat4.rotateZ(this._modelMatrix, this._modelMatrix, this._rotation[2]);
-
-		this._isNeedUpdate = false;
-
-		return this;
 	}
 
 	static getVertices(width, height, depth, widthSegments, heightSegments, depthSegments) {
@@ -513,7 +541,6 @@ export class Box extends EventEmitter {
 		return indices;
 	}
 	/**
-	 *
 	 *
 	 * @param {Number} a
 	 * @param {Number} b

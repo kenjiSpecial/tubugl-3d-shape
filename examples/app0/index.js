@@ -44,7 +44,7 @@ export default class App {
 		let gl = this.gl;
 		gl.viewport(0, 0, this._width, this._height);
 
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 		this._camera
 			.updatePosition(
 				this._camera.rad1 * Math.sin(this._camera.theta) * Math.cos(this._camera.phi),
@@ -53,7 +53,7 @@ export default class App {
 			)
 			.lookAt([0, 0, 0]);
 
-		this._box.update(this._camera).draw();
+		this._box.render(this._camera);
 	}
 
 	animateOut() {

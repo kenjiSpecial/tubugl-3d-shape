@@ -7,7 +7,8 @@ const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
 import { DEPTH_TEST } from 'tubugl-constants';
-import { Box } from '../../index';
+import { RoundingCube } from '../../index';
+import { NormalHelper } from '../../src/normalHelper';
 import { PerspectiveCamera } from 'tubugl-camera';
 
 export default class App {
@@ -22,6 +23,7 @@ export default class App {
 
 		this._setClear();
 		this._makeBox();
+		this._makeHelper();
 		this._makeCamera();
 
 		this.resize(this._width, this._height);
@@ -53,7 +55,11 @@ export default class App {
 			)
 			.lookAt([0, 0, 0]);
 
-		this._box.update(this._camera).draw();
+		this._box.render(this._camera);
+		// console.log(this._box.position);
+		// this._box.position.x = 100;
+		// console.log(this._position);
+		this._normalHelper.render(this._camera);
 	}
 
 	animateOut() {
@@ -117,12 +123,14 @@ export default class App {
 	}
 
 	_makeBox() {
-		let side = 100;
-		this._box = new Box(this.gl, side * 4, side * 3, side * 5, 4, 3, 1, {
+		let side = 300;
+		this._box = new RoundingCube(this.gl, side, side, side, 100, 10, 10, 10, {
 			isWire: true
 		});
-		this._box.posTheta = 0;
-		this._box.rotTheta = 0;
+	}
+
+	_makeHelper() {
+		this._normalHelper = new NormalHelper(this.gl, this._box);
 	}
 
 	_makeCamera() {
@@ -135,8 +143,7 @@ export default class App {
 	_addGui() {
 		this.gui = new dat.GUI();
 		this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause');
-		this._boxGUIFolder = this.gui.addFolder('plane');
-		this._boxGUIFolder.add(this, '_isPlaneAnimation').name('animation');
+		this._boxGUIFolder = this.gui.addFolder('rounding  cube');
 		this._box.addGui(this._boxGUIFolder);
 		this._boxGUIFolder.open();
 	}
