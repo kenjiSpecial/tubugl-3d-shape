@@ -13,7 +13,6 @@ import { PerspectiveCamera } from 'tubugl-camera';
 export default class App {
 	constructor(params = {}) {
 		this._isMouseDown = false;
-		this._isPlaneAnimation = false;
 		this._width = params.width ? params.width : window.innerWidth;
 		this._height = params.height ? params.height : window.innerHeight;
 
@@ -133,7 +132,6 @@ export default class App {
 		this.gui = new dat.GUI();
 		this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause');
 		this._boxGUIFolder = this.gui.addFolder('plane');
-		this._boxGUIFolder.add(this, '_isPlaneAnimation').name('animation');
 		this._box.addGui(this._boxGUIFolder);
 		this._boxGUIFolder.open();
 	}
