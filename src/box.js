@@ -25,7 +25,7 @@ import {
 } from 'tubugl-constants';
 
 import { generateWireframeIndices } from 'tubugl-utils';
-import { Vector3 } from './vector3';
+import { Vector3 } from 'tubugl-math';
 
 export class Box extends EventEmitter {
 	constructor(
