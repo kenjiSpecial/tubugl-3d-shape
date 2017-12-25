@@ -1,5 +1,7 @@
 # tubugl-3d-shape
 
+[![NPM version][npm-image]][npm-url] 
+
 3D shape(proceduaral box, procedural cube box) for [tubugl](https://github.com/kenjiSpecial/tubugl)
 
 ## install
@@ -25,3 +27,6 @@ https://kenjispecial.github.io/tubugl-3d-shape/
 ## TODO
 
 - [ ] support texture
+
+[npm-image]: https://img.shields.io/npm/v/tubugl-3d-shape.svg?style=flat-square
+[npm-url]: https://www.npmjs.com/package/tubugl-3d-shape 
