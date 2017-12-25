@@ -20,6 +20,8 @@ yarn add tubugl-3d-shape
 
 ## examples
 
+https://kenjispecial.github.io/tubugl-3d-shape/
+
 ## TODO
 
 - [ ] support texture
