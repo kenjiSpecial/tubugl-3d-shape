@@ -1,3 +1,3 @@
-export { Box } from './src/box';
-export { RoundingCube } from './src/roundingCube';
+export { ProceduralCube } from './src/proceduralCube';
+export { ProceduralRoundingCube } from './src/proceduralRoundingCube';
 export { NormalHelper } from './src/normalHelper';

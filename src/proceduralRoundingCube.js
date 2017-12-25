@@ -1,16 +1,14 @@
-import { Box } from './box';
+import { ProceduralCube } from './proceduralCube';
 import { ArrayBuffer, Program } from 'tubugl-core';
 import { vec3 } from 'gl-matrix/src/gl-matrix';
 import {
-	baseShaderFragSrc,
-	baseShaderVertSrc,
 	base2ShaderVertSrc,
 	base2ShaderFragSrc,
 	normalShaderFragSrc,
 	normalShaderVertSrc
 } from './shaders/base.shader';
 
-export class RoundingCube extends Box {
+export class ProceduralRoundingCube extends ProceduralCube {
 	constructor(
 		gl,
 		width = 100,

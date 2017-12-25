@@ -1,17 +1,14 @@
 export const baseShaderVertSrc = `
 attribute vec4 position;
-// attribute vec3 barycentricPosition;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
-varying vec3 vBarycentricPosition;
 
 void main() {
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
     gl_PointSize = 10.;
-    // vBarycentricPosition = barycentricPosition;
 }`;
 
 export const baseShaderFragSrc = `

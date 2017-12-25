@@ -5,10 +5,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "app0": "parcel examples/app0/index.html --no-hmr",
-    "app1": "parcel examples/app1/index.html --no-hmr",
-    "dist0": "parcel build docs/app0/index.html -d examples/dist/app0 --public-url ./",
-    "dist1": "parcel build docs/app1/index.html -d examples/dist/app1 --public-url ./"
+    "app00": "parcel examples/app00/index.html --no-hmr",
+    "app01": "parcel examples/app01/index.html --no-hmr",
+    "dist00": "parcel build examples/app00/index.html -d docs/app00 --public-url ./",
+    "dist01": "parcel build examples/app01/index.html -d docs/app01 --public-url ./",
+    "screenshot00": "node ./node/screenshot.js --dir=app00",
+    "screenshot01": "node ./node/screenshot.js --dir=app01"
   },
   "dependencies": {
     "dat.gui": "https://github.com/dataarts/dat.gui.git",
@@ -18,12 +20,13 @@
     "tubugl-camera": "https://github.com/kenjiSpecial/tubugl-camera.git",
     "tubugl-constants": "^1.0.3",
     "tubugl-core": "https://github.com/kenjiSpecial/tubugl-core.git",
+    "tubugl-helper": "^1.0.1",
     "tubugl-math": "https://github.com/kenjiSpecial/tubugl-math.git",
     "tubugl-utils": "https://github.com/kenjiSpecial/tubugl-utils.git",
     "wolfy87-eventemitter": "^5.2.4"
   },
   "devDependencies": {
-    "parcel-bundler": "^1.2.1",
-    "prettier": "^1.9.2"
+    "minimist": "^1.2.0",
+    "puppeteer": "^0.13.0"
   }
 }

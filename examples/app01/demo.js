@@ -9,7 +9,7 @@ start();
 
 function init() {
 	app = new App({
-		isDebug: true
+		isDebug: false
 	});
 
 	document.body.appendChild(app.canvas);

@@ -7,8 +7,8 @@ const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
 import { DEPTH_TEST } from 'tubugl-constants';
-import { RoundingCube } from '../../index';
-import { NormalHelper } from '../../src/normalHelper';
+import { ProceduralRoundingCube } from '../../index';
+import { NormalHelper } from 'tubugl-helper';
 import { PerspectiveCamera } from 'tubugl-camera';
 
 export default class App {
@@ -124,7 +124,7 @@ export default class App {
 
 	_makeBox() {
 		let side = 300;
-		this._box = new RoundingCube(this.gl, side, side, side, 100, 10, 10, 10, {
+		this._box = new ProceduralRoundingCube(this.gl, side, side, side, 100, 10, 10, 10, {
 			isWire: true
 		});
 	}

@@ -27,7 +27,7 @@ import {
 import { generateWireframeIndices } from 'tubugl-utils';
 import { Vector3 } from 'tubugl-math';
 
-export class Box extends EventEmitter {
+export class ProceduralCube extends EventEmitter {
 	constructor(
 		gl,
 		width = 100,
@@ -203,7 +203,13 @@ export class Box extends EventEmitter {
 	}
 
 	_updateModelMatrix() {
-		if (!this._isNeedUpdate && !this.position.needsUpdate && !this.rotation.needsUpdate) return;
+		if (
+			!this._isNeedUpdate &&
+			!this.position.needsUpdate &&
+			!this.rotation.needsUpdate &&
+			!this.scale.needsUpdate
+		)
+			return;
 
 		mat4.fromTranslation(this._modelMatrix, this.position.array);
 		mat4.scale(this._modelMatrix, this._modelMatrix, this.scale.array);
@@ -215,6 +221,7 @@ export class Box extends EventEmitter {
 		this._isNeedUpdate = false;
 		this.position.needsUpdate = false;
 		this.rotation.needsUpdate = false;
+		this.scale.needsUpdate = false;
 
 		return this;
 	}
@@ -252,7 +259,7 @@ export class Box extends EventEmitter {
 
 		this._positionBuffer = new ArrayBuffer(
 			this._gl,
-			Box.getVertices(
+			ProceduralCube.getVertices(
 				this._width,
 				this._height,
 				this._depth,
@@ -269,7 +276,11 @@ export class Box extends EventEmitter {
 
 		this._indexBuffer = new IndexArrayBuffer(
 			this._gl,
-			Box.getIndices(this._widthSegments, this._heightSegments, this._depthSegments)
+			ProceduralCube.getIndices(
+				this._widthSegments,
+				this._heightSegments,
+				this._depthSegments
+			)
 		);
 		this._cnt = this._indexBuffer.dataArray.length;
 	}
@@ -406,9 +417,11 @@ export class Box extends EventEmitter {
 		}
 
 		indices = indices.concat(
-			Box.createFace(widthSegments, heightSegments, depthSegments, false)
+			ProceduralCube.createFace(widthSegments, heightSegments, depthSegments, false)
 		);
-		indices = indices.concat(Box.createFace(widthSegments, heightSegments, depthSegments));
+		indices = indices.concat(
+			ProceduralCube.createFace(widthSegments, heightSegments, depthSegments)
+		);
 
 		indices = new Uint16Array(indices);
 
@@ -422,7 +435,7 @@ export class Box extends EventEmitter {
 			? ring * (heightSegments + 1) + (depthSegments - 1) * (widthSegments - 1)
 			: ring * (heightSegments + 1);
 		let startNum = isTop ? ring * heightSegments : 0;
-		let setQuad = isTop ? Box.setTopQuad : Box.setQuad;
+		let setQuad = isTop ? ProceduralCube.setTopQuad : ProceduralCube.setQuad;
 
 		if (widthSegments === 1 || depthSegments === 1) {
 			let segments = Math.max(widthSegments, depthSegments);

@@ -7,7 +7,7 @@ const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
 import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, DEPTH_TEST } from 'tubugl-constants';
-import { Box } from '../../index';
+import { ProceduralCube } from '../../index';
 import { PerspectiveCamera } from 'tubugl-camera';
 
 export default class App {
@@ -113,8 +113,8 @@ export default class App {
 		this.gl.enable(DEPTH_TEST);
 	}
 	_makeBox() {
-		this._box = new Box(this.gl, 200, 200, 200, 4, 5, 6, {
-			isWire: false
+		this._box = new ProceduralCube(this.gl, 200, 200, 200, 4, 5, 6, {
+			isWire: true
 		});
 		this._box.posTheta = 0;
 		this._box.rotTheta = 0;
@@ -122,8 +122,8 @@ export default class App {
 
 	_makeCamera() {
 		this._camera = new PerspectiveCamera(window.innerWidth, window.innerHeight, 60, 1, 2000);
-		this._camera.theta = 0;
-		this._camera.phi = 0;
+		this._camera.theta = 0.2;
+		this._camera.phi = 0.2;
 		this._camera.rad1 = 800;
 		this._camera.rad2 = 800;
 	}
