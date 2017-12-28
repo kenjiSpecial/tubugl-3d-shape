@@ -1,6 +1,6 @@
 {
   "name": "tubugl-3d-shape",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "3D shapes for tubugl",
   "main": "index.js",
   "license": "MIT",
@@ -8,13 +8,16 @@
     "app00": "parcel examples/app00/index.html --no-hmr",
     "app01": "parcel examples/app01/index.html --no-hmr",
     "app02": "parcel examples/app02/index.html --no-hmr",
+    "app03": "parcel examples/app03/index.html --no-hmr",
     "dist00": "parcel build examples/app00/index.html -d docs/app00 --public-url ./",
     "dist01": "parcel build examples/app01/index.html -d docs/app01 --public-url ./",
     "dist02": "parcel build examples/app02/index.html -d docs/app02 --public-url ./",
+    "dist03": "parcel build examples/app03/index.html -d docs/app03 --public-url ./",
     "screenshot00": "node ./node/screenshot.js --dir=app00",
     "screenshot01": "node ./node/screenshot.js --dir=app01",
     "screenshot02": "node ./node/screenshot.js --dir=app02",
-    "docs" : "python -m SimpleHTTPServer 8000"
+    "screenshot03": "node ./node/screenshot.js --dir=app03",
+    "docs": "python -m SimpleHTTPServer 8000"
   },
   "dependencies": {
     "dat.gui": "https://github.com/dataarts/dat.gui.git",
@@ -23,7 +26,7 @@
     "stats.js": "https://github.com/mrdoob/stats.js.git",
     "tubugl-camera": "^1.1.0",
     "tubugl-constants": "^1.0.3",
-    "tubugl-core": "^1.0.0",
+    "tubugl-core": "^1.1.0",
     "tubugl-helper": "^1.0.2",
     "tubugl-math": "^1.1.6",
     "tubugl-utils": "^1.0.1",

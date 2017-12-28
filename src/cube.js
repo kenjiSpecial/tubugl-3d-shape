@@ -1,12 +1,13 @@
 const EventEmitter = require('wolfy87-eventemitter');
 import { mat4, vec3 } from 'gl-matrix';
 import {
-	baseShaderFragSrc,
-	baseShaderVertSrc,
+	baseUVShaderVertSrc,
+	baseUVShaderFragSrc,
 	base2ShaderVertSrc,
 	base2ShaderFragSrc,
-	wireFrameFragSrc
-} from './shaders/planeBase.shader';
+	wireFrameFragSrc,
+	baseShaderVertSrc
+} from './shaders/base.shader';
 import { Program, ArrayBuffer, IndexArrayBuffer, VAO } from 'tubugl-core';
 import {
 	CULL_FACE,
@@ -59,7 +60,7 @@ export class Cube extends EventEmitter {
 		this._isTransparent = !!params.isTransparent;
 
 		this._makeProgram(params);
-		this._makeBuffer();
+		this._makeBuffer(params);
 
 		if (this._isWire) {
 			this._makeWireframe();
@@ -95,10 +96,10 @@ export class Cube extends EventEmitter {
 	_makeProgram(params) {
 		const fragmentShaderSrc = params.fragmentShaderSrc
 			? params.fragmentShaderSrc
-			: this._isGl2 ? base2ShaderFragSrc : baseShaderFragSrc;
+			: this._isGl2 ? base2ShaderFragSrc : baseUVShaderFragSrc;
 		const vertexShaderSrc = params.vertexShaderSrc
 			? params.vertexShaderSrc
-			: this._isGl2 ? base2ShaderVertSrc : baseShaderVertSrc;
+			: this._isGl2 ? base2ShaderVertSrc : baseUVShaderVertSrc;
 
 		this._program = new Program(this._gl, vertexShaderSrc, fragmentShaderSrc);
 	}

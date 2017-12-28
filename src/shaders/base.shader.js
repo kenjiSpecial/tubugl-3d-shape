@@ -94,3 +94,50 @@ void main() {
     vec3 faceColor = (vNormal + vec3(0.5))/2.0;
     gl_FragColor = vec4(faceColor, 1.0);
 }`;
+
+export const baseUVShaderVertSrc = `
+attribute vec4 position;
+attribute vec3 normal;
+attribute vec2 uv;
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
+
+varying vec3 vNormal;
+varying vec2 vUv;
+
+void main() {
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
+    vNormal = normal;
+    vUv = uv;
+}`;
+
+export const baseUVShaderFragSrc = `
+precision mediump float;
+
+varying vec3 vNormal;
+varying vec2 vUv;
+void main() {
+    vec3 outColor = (vNormal + vec3(1.0, 1.0, 1.0))/2.0;
+    if(!gl_FrontFacing) outColor = vec3(1.0);
+    
+    // gl_FragColor = vec4( vec3(vUv, 0.0), 1.0);
+    gl_FragColor = vec4(outColor, 1.0);
+
+}`;
+
+export const baseTextureShaderFragSrc = `
+precision mediump float;
+
+varying vec3 vNormal;
+varying vec2 vUv;
+
+uniform sampler2D uTexture;
+
+void main(){
+    vec3 normal = vNormal;
+    gl_FragColor = texture2D(uTexture, vUv);
+}
+
+`;
