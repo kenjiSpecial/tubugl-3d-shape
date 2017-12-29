@@ -29,3 +29,9 @@
 
 [codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app04) | [source for Sphere](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/sphere.js)
 
+### [#05 -  procedural sphere](./app05/index.html)
+
+[![](./app05/thumbnail.png)](./app05/index.html)
+
+[codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app05) | [source for ProceduralSphere](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/proceduralSphere.js)
+
