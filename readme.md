@@ -2,7 +2,7 @@
 
 [![NPM version][npm-image]][npm-url] 
 
-3D shape(proceduaral box, procedural cube box) for [tubugl](https://github.com/kenjiSpecial/tubugl)
+3D shape(proceduaral box, procedural cube box) made with [tubugl](https://github.com/kenjiSpecial/tubugl)
 
 ## install
 
