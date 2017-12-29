@@ -1,3 +1,6 @@
+
+url: https://github.com/kenjiSpecial/tubugl-3d-shape
+
 ### [#00 - procedural cube](./app00/index.html)
 
 [![](./app00/thumbnail.png)](./app00/index.html)
@@ -34,4 +37,6 @@
 [![](./app05/thumbnail.png)](./app05/index.html)
 
 [codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app05) | [source for ProceduralSphere](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/proceduralSphere.js)
+
+all examples were made with [tubugl](https://github.com/kenjiSpecial/tubugl)
 
