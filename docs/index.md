@@ -1,5 +1,5 @@
 
-github: [https://github.com/kenjiSpecial/tubugl-3d-shape](https://github.com/kenjiSpecial/tubugl-3d-shape)
+GitHub: [https://github.com/kenjiSpecial/tubugl-3d-shape](https://github.com/kenjiSpecial/tubugl-3d-shape)
 
 ### [#00 - procedural cube](./app00/index.html)
 
