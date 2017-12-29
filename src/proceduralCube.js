@@ -25,9 +25,9 @@ import {
 } from 'tubugl-constants';
 
 import { generateWireframeIndices } from 'tubugl-utils';
-import { Vector3 } from 'tubugl-math';
+import { Object3D } from './object3D';
 
-export class ProceduralCube extends EventEmitter {
+export class ProceduralCube extends Object3D {
 	constructor(
 		gl,
 		width = 100,
@@ -38,28 +38,14 @@ export class ProceduralCube extends EventEmitter {
 		depthSegments = 1,
 		params = {}
 	) {
-		super();
+		super(gl, params);
 
-		this._params = params;
-		this._isNeedUpdate = true;
-		this._isWire = !!params.isWire;
-		this._isDepthTest = params.isDepthTest ? params.isDepthTest : true;
-		this._isTransparent = !!params.isTransparent;
-		this._isGl2 = params.isGl2;
-		this._modelMatrix = mat4.create();
-
-		this._gl = gl;
-		this._side = params.side ? params.side : 'double'; // 'front', 'back', 'double'
 		this._width = width;
 		this._height = height;
 		this._depth = depth;
 		this._widthSegments = widthSegments;
 		this._heightSegments = heightSegments;
 		this._depthSegments = depthSegments;
-
-		this.position = new Vector3();
-		this.rotation = new Vector3();
-		this.scale = new Vector3(1, 1, 1);
 
 		this._makeProgram(params);
 		this._makeBuffers();
@@ -69,8 +55,8 @@ export class ProceduralCube extends EventEmitter {
 			this._makeWireframeBuffer();
 		}
 	}
-	get modelMatrix() {
-		return this._modelMatrix;
+	getModelMatrix() {
+		return this.modelMatrix;
 	}
 
 	setPosition(x, y, z) {
@@ -108,11 +94,7 @@ export class ProceduralCube extends EventEmitter {
 
 		this._updateAttributes(prg);
 
-		this._gl.uniformMatrix4fv(
-			prg.getUniforms('modelMatrix').location,
-			false,
-			this._modelMatrix
-		);
+		this._gl.uniformMatrix4fv(prg.getUniforms('modelMatrix').location, false, this.modelMatrix);
 		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
 		this._gl.uniformMatrix4fv(
 			prg.getUniforms('projectionMatrix').location,
@@ -130,11 +112,7 @@ export class ProceduralCube extends EventEmitter {
 		this._positionBuffer.bind().attribPointer(prg);
 		this._wireframeIndexBuffer.bind();
 
-		this._gl.uniformMatrix4fv(
-			prg.getUniforms('modelMatrix').location,
-			false,
-			this._modelMatrix
-		);
+		this._gl.uniformMatrix4fv(prg.getUniforms('modelMatrix').location, false, this.modelMatrix);
 		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
 		this._gl.uniformMatrix4fv(
 			prg.getUniforms('projectionMatrix').location,
@@ -200,30 +178,6 @@ export class ProceduralCube extends EventEmitter {
 		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
 
 		return;
-	}
-
-	_updateModelMatrix() {
-		if (
-			!this._isNeedUpdate &&
-			!this.position.needsUpdate &&
-			!this.rotation.needsUpdate &&
-			!this.scale.needsUpdate
-		)
-			return;
-
-		mat4.fromTranslation(this._modelMatrix, this.position.array);
-		mat4.scale(this._modelMatrix, this._modelMatrix, this.scale.array);
-
-		mat4.rotateX(this._modelMatrix, this._modelMatrix, this.rotation.array[0]);
-		mat4.rotateY(this._modelMatrix, this._modelMatrix, this.rotation.array[1]);
-		mat4.rotateZ(this._modelMatrix, this._modelMatrix, this.rotation.array[2]);
-
-		this._isNeedUpdate = false;
-		this.position.needsUpdate = false;
-		this.rotation.needsUpdate = false;
-		this.scale.needsUpdate = false;
-
-		return this;
 	}
 
 	_makeProgram(params) {

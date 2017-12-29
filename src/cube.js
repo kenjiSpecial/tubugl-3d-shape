@@ -23,10 +23,9 @@ import {
 	LINES
 } from 'tubugl-constants';
 import { generateWireframeIndices } from 'tubugl-utils';
-import { Vector3 } from 'tubugl-math/src/vector3';
-import { Euler } from 'tubugl-math/src/euler';
+import { Object3D } from './object3D';
 
-export class Cube extends EventEmitter {
+export class Cube extends Object3D {
 	constructor(
 		gl,
 		width = 100,
@@ -37,14 +36,7 @@ export class Cube extends EventEmitter {
 		depthSegment = 1,
 		params = {}
 	) {
-		super();
-		this.position = new Vector3();
-		this.rotation = new Euler();
-		this.scale = new Vector3(1, 1, 1);
-
-		this._isGl2 = params.isGl2;
-		this._gl = gl;
-		this._side = params.side ? params.side : 'double'; // 'front', 'back', 'double'
+		super(gl, params);
 
 		this._width = width;
 		this._height = height;
@@ -52,12 +44,6 @@ export class Cube extends EventEmitter {
 		this._widthSegment = widthSegment;
 		this._heightSegment = heightSegment;
 		this._depthSegment = depthSegment;
-
-		this.modelMatrix = mat4.create();
-		this._isNeedUpdate = true;
-		this._isWire = !!params.isWire;
-		this._isDepthTest = !params.isDepthTest;
-		this._isTransparent = !!params.isTransparent;
 
 		this._makeProgram(params);
 		this._makeBuffer(params);
@@ -68,25 +54,6 @@ export class Cube extends EventEmitter {
 		}
 	}
 
-	setPosition(x, y, z) {
-		this._isNeedUpdate = true;
-
-		if (x !== undefined) this.position.x = x;
-		if (y !== undefined) this.position.y = y;
-		if (z !== undefined) this.position.z = z;
-
-		return this;
-	}
-
-	setRotation(x, y, z) {
-		this._isNeedUpdate = true;
-
-		if (x !== undefined) this.rotation.x = x;
-		if (y !== undefined) this.rotation.y = y;
-		if (z !== undefined) this.rotation.z = z;
-
-		return this;
-	}
 	getVertice() {
 		return this._positionBuffer.dataArray;
 	}
@@ -272,28 +239,6 @@ export class Cube extends EventEmitter {
 					this._makeWireframeBuffer();
 				}
 			});
-	}
-
-	_updateModelMatrix() {
-		if (
-			!this._isNeedUpdate &&
-			!this.position.needsUpdate &&
-			!this.rotation.needsMatrixUpdate &&
-			!this.scale.needsUpdate
-		)
-			return;
-
-		mat4.fromTranslation(this.modelMatrix, this.position.array);
-		mat4.scale(this.modelMatrix, this.modelMatrix, this.scale.array);
-
-		this.rotation.updateMatrix();
-		mat4.multiply(this.modelMatrix, this.modelMatrix, this.rotation.matrix);
-
-		this._isNeedUpdate = false;
-		this.position.needsUpdate = false;
-		this.scale.needsUpdate = false;
-
-		return this;
 	}
 
 	static getVertice(width, height, depth, widthSegment, heightSegment, depthSegment) {

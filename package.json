@@ -24,7 +24,7 @@
     "gl-matrix": "^2.4.0",
     "gsap": "^1.20.3",
     "stats.js": "https://github.com/mrdoob/stats.js.git",
-    "tubugl-camera": "^1.1.0",
+    "tubugl-camera": "^1.2.0",
     "tubugl-constants": "^1.0.3",
     "tubugl-core": "^1.1.0",
     "tubugl-helper": "^1.0.2",
