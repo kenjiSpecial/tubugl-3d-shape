@@ -23,3 +23,9 @@
 
 [codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app03) | [source for TextureCube](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/textureCube.js)
 
+### [#04 -  sphere](./app04/index.html)
+
+[![](./app04/thumbnail.png)](./app04/index.html)
+
+[codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app04) | [source for Sphere](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/sphere.js)
+

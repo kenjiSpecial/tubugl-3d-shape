@@ -1,6 +1,4 @@
 // http://catlikecoding.com/unity/tutorials/rounded-cube/
-const EventEmitter = require('wolfy87-eventemitter');
-import { mat4 } from 'gl-matrix/src/gl-matrix';
 import {
 	baseShaderFragSrc,
 	baseShaderVertSrc,
@@ -59,25 +57,6 @@ export class ProceduralCube extends Object3D {
 		return this.modelMatrix;
 	}
 
-	setPosition(x, y, z) {
-		this._isNeedUpdate = true;
-
-		if (x !== undefined) this.position.x = x;
-		if (y !== undefined) this.position.y = y;
-		if (z !== undefined) this.position.z = z;
-
-		return this;
-	}
-
-	setRotation(x, y, z) {
-		this._isNeedUpdate = true;
-
-		if (x !== undefined) this.rotation.x = x;
-		if (y !== undefined) this.rotation.y = y;
-		if (z !== undefined) this.rotation.z = z;
-
-		return this;
-	}
 	getVertice() {
 		return this._positionBuffer.dataArray;
 	}

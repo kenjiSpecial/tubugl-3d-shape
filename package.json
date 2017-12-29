@@ -9,14 +9,17 @@
     "app01": "parcel examples/app01/index.html --no-hmr",
     "app02": "parcel examples/app02/index.html --no-hmr",
     "app03": "parcel examples/app03/index.html --no-hmr",
+    "app04": "parcel examples/app04/index.html --no-hmr",
     "dist00": "parcel build examples/app00/index.html -d docs/app00 --public-url ./",
     "dist01": "parcel build examples/app01/index.html -d docs/app01 --public-url ./",
     "dist02": "parcel build examples/app02/index.html -d docs/app02 --public-url ./",
     "dist03": "parcel build examples/app03/index.html -d docs/app03 --public-url ./",
+    "dist04": "parcel build examples/app04/index.html -d docs/app04 --public-url ./",
     "screenshot00": "node ./node/screenshot.js --dir=app00",
     "screenshot01": "node ./node/screenshot.js --dir=app01",
     "screenshot02": "node ./node/screenshot.js --dir=app02",
     "screenshot03": "node ./node/screenshot.js --dir=app03",
+    "screenshot04": "node ./node/screenshot.js --dir=app04",
     "docs": "python -m SimpleHTTPServer 8000"
   },
   "dependencies": {
