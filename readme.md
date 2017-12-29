@@ -24,10 +24,21 @@ yarn add tubugl-3d-shape
 
 https://kenjispecial.github.io/tubugl-3d-shape/
 
+## Running the examples locally
+
+you need to install [parcel](https://github.com/parcel-bundler/parcel) to run examples locally
+
+install node modules locally
+
+```sh
+yarn
+yarn run
+```
+
 ## TODO
 
-- [ ] support texture
-- [ ] support vertexArrayObject for webgl2 supported browser
+- [x] support texture
+- [x] support vertexArrayObject for webgl2 supported browser
 
 [npm-image]: https://img.shields.io/npm/v/tubugl-3d-shape.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/tubugl-3d-shape 
