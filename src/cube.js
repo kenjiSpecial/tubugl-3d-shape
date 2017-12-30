@@ -18,7 +18,8 @@ import {
 	ONE,
 	ZERO,
 	BLEND,
-	LINES
+	LINES,
+	ONE_MINUS_SRC_ALPHA
 } from 'tubugl-constants';
 import { generateWireframeIndices } from 'tubugl-utils';
 import { Object3D } from './object3D';
@@ -192,7 +193,7 @@ export class Cube extends Object3D {
 		else this._gl.disable(DEPTH_TEST);
 
 		if (this._isTransparent) {
-			this._gl.blendFunc(SRC_ALPHA, ONE);
+			this.gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 			this._gl.enable(BLEND);
 		} else {
 			this._gl.blendFunc(SRC_ALPHA, ZERO);
