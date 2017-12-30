@@ -33,7 +33,7 @@ export class Cube extends Object3D {
 		widthSegment = 1,
 		heightSegment = 1,
 		depthSegment = 1,
-		params = {}
+		params = { isDepthTest: true }
 	) {
 		super(gl, params);
 

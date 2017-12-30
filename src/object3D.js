@@ -11,7 +11,7 @@ export class Object3D extends EventEmitter {
 	 *
 	 * @param {{isGl2: boolean, side: string}} params
 	 */
-	constructor(gl, params = {}) {
+	constructor(gl, params = { isDepthTest: true }) {
 		super();
 		this._gl = gl;
 
@@ -25,7 +25,7 @@ export class Object3D extends EventEmitter {
 		this._side = params.side ? params.side : 'double'; // 'front', 'back', 'double'
 		this._isNeedUpdate = true;
 		this._isWire = !!params.isWire;
-		this._isDepthTest = !params.isDepthTest;
+		this._isDepthTest = params.isDepthTest === undefined ? true : params.isDepthTest;
 		this._isTransparent = !!params.isTransparent;
 		this._params = params;
 	}
