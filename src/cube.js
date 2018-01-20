@@ -196,7 +196,7 @@ export class Cube extends Object3D {
 			this.gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
 			this._gl.enable(BLEND);
 		} else {
-			this._gl.blendFunc(SRC_ALPHA, ZERO);
+			this._gl.blendFunc(ONE, ZERO);
 			this._gl.disable(BLEND);
 		}
 

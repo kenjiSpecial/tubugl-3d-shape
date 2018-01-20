@@ -53,6 +53,7 @@ export class Sphere extends Object3D {
 		thetaLength = Math.PI
 	) {
 		super(gl, params);
+		console.log(gl);
 
 		this._radius = radius;
 		this._widthSegments = widthSegments;
