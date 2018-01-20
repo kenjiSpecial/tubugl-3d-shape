@@ -2,14 +2,23 @@
  * make demo with rendering of plane(webgl)
  */
 
-const dat = require('../vendor/dat.gui.min');
+const dat = require('dat.gui/build/dat.gui.min');
 const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
 import { COLOR_BUFFER_BIT, DEPTH_TEST, DEPTH_BUFFER_BIT } from 'tubugl-constants';
-import { Cube } from '../../index';
-import { NormalHelper, GridHelper } from 'tubugl-helper';
+import { TextureCube } from '../../src/textureCube';
+import { GridHelper } from 'tubugl-helper';
 import { PerspectiveCamera, CameraController } from 'tubugl-camera';
+
+import { Texture } from 'tubugl-core/src/texture';
+
+import texture0Url from '../assets/texture00.jpg';
+import texture1Url from '../assets/texture01.jpg';
+import texture2Url from '../assets/texture02.jpg';
+import texture3Url from '../assets/texture03.jpg';
+import texture4Url from '../assets/texture04.jpg';
+import textureUVUrl from '../assets/uv.jpg';
 
 export default class App {
 	constructor(params = {}) {
@@ -22,23 +31,42 @@ export default class App {
 		this.gl = this.canvas.getContext('webgl');
 
 		this._setClear();
-		this._makeBox();
-		this._makeHelper();
+		// this._makeBox();
 		this._makeCamera();
 		this._makeCameraController();
 
-		this.resize(this._width, this._height);
-
-		if (params.isDebug) {
+		this._isDebug = params.isDebug;
+		if (this._isDebug) {
 			this.stats = new Stats();
 			document.body.appendChild(this.stats.dom);
-			this._addGui();
 		}
 	}
 
 	animateIn() {
 		this.isLoop = true;
 		TweenLite.ticker.addEventListener('tick', this.loop, this);
+	}
+
+	startLoad() {
+		this._textures = [];
+		this._loadedCnt = 0;
+		[
+			{ src: texture0Url, name: 'texture0' },
+			{ src: texture1Url, name: 'texture1' },
+			{ src: texture2Url, name: 'texture2' },
+			{ src: texture3Url, name: 'texture3' },
+			{ src: texture4Url, name: 'texture4' },
+			{ src: textureUVUrl, name: 'textureUV' }
+		].forEach(val => {
+			let image = new Image();
+			image.onload = () => {
+				this._loadedCnt++;
+
+				if (this._loadedCnt === 6) this._loaded();
+			};
+			image.src = val.src;
+			this._textures.push({ image: image, name: val.name, texture: null });
+		});
 	}
 
 	loop() {
@@ -50,8 +78,10 @@ export default class App {
 
 		this._camera.update();
 
-		this._box.render(this._camera);
-		this._normalHelper.render(this._camera);
+		for (let ii = 0; ii < this._boxes.length; ii++) {
+			this._boxes[ii].render(this._camera);
+		}
+
 		this._gridHelper.render(this._camera);
 	}
 
@@ -86,35 +116,61 @@ export default class App {
 		this.canvas.height = this._height;
 		this.gl.viewport(0, 0, this._width, this._height);
 
-		this._box.resize(this._width, this._height);
+		this._boxes.forEach(box => {
+			box.resize(this._width, this._height);
+		});
 		this._camera.updateSize(this._width, this._height);
 	}
 
 	destroy() {}
+	_loaded() {
+		this._textures.forEach(obj => {
+			let image = obj.image;
+			let texture = new Texture(this.gl);
+			texture
+				.bind()
+				.fromImage(image, image.width, image.height)
+				.generateMipmap();
+			obj.texture = texture;
+		});
 
+		this._makeBoxes();
+		this._makeHelper();
+		this.animateIn();
+		if (this._isDebug) this._addGui();
+		this.resize(this._width, this._height);
+	}
 	_setClear() {
 		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 		this.gl.enable(DEPTH_TEST);
 	}
 
-	_makeBox() {
-		let side = 100;
-		this._box = new Cube(this.gl, side * 4, side * 3, side * 2, 8, 6, 4, {
-			isWire: true
+	_makeBoxes() {
+		this._boxes = [];
+		let side = 80;
+
+		this._textures.forEach((texture, index) => {
+			let box = new TextureCube(this.gl, side, side, side, 1, 1, 1, {
+				isWire: true,
+				texture: { value: this._textures[index].texture, name: 'uTexture' }
+			});
+			box.position.y = side / 2;
+
+			box.position.x = -150 * 2.5 + 150 * index;
+
+			this._boxes.push(box);
 		});
-		this._box.position.y = side * 1.5;
 	}
 
 	_makeHelper() {
-		this._normalHelper = new NormalHelper(this.gl, this._box);
+		// this._normalHelper = new NormalHelper(this.gl, this._box);
 		this._gridHelper = new GridHelper(this.gl, 1000, 1000, 20, 20);
 	}
 
 	_makeCamera() {
 		this._camera = new PerspectiveCamera(window.innerWidth, window.innerHeight, 60, 1, 2000);
-		this._camera.position.z = 600;
-		this._camera.position.x = -600;
-		this._camera.position.y = 200;
+		this._camera.position.z = 700;
+		this._camera.position.y = 80;
 		this._camera.lookAt([0, 0, 0]);
 	}
 
@@ -127,8 +183,8 @@ export default class App {
 	_addGui() {
 		this.gui = new dat.GUI();
 		this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause');
-		this._boxGUIFolder = this.gui.addFolder('rounding  cube');
-		this._box.addGui(this._boxGUIFolder);
-		this._boxGUIFolder.open();
+		// this._boxGUIFolder = this.gui.addFolder('rounding  cube');
+		// this._box.addGui(this._boxGUIFolder);
+		// this._boxGUIFolder.open();
 	}
 }

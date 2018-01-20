@@ -2,17 +2,19 @@
  * make demo with rendering of plane(webgl)
  */
 
-const dat = require('../vendor/dat.gui.min');
+const dat = require('dat.gui/build/dat.gui.min');
 const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
-import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, DEPTH_TEST } from 'tubugl-constants';
-import { ProceduralCube } from '../../index';
-import { PerspectiveCamera } from 'tubugl-camera';
+import { COLOR_BUFFER_BIT, DEPTH_TEST, DEPTH_BUFFER_BIT } from 'tubugl-constants';
+import { Cube } from '../../index';
+import { NormalHelper, GridHelper } from 'tubugl-helper';
+import { PerspectiveCamera, CameraController } from 'tubugl-camera';
 
 export default class App {
 	constructor(params = {}) {
 		this._isMouseDown = false;
+		this._isPlaneAnimation = false;
 		this._width = params.width ? params.width : window.innerWidth;
 		this._height = params.height ? params.height : window.innerHeight;
 
@@ -21,7 +23,9 @@ export default class App {
 
 		this._setClear();
 		this._makeBox();
+		this._makeHelper();
 		this._makeCamera();
+		this._makeCameraController();
 
 		this.resize(this._width, this._height);
 
@@ -42,38 +46,17 @@ export default class App {
 
 		let gl = this.gl;
 		gl.viewport(0, 0, this._width, this._height);
-
 		gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
-		this._camera
-			.updatePosition(
-				this._camera.rad1 * Math.sin(this._camera.theta) * Math.cos(this._camera.phi),
-				this._camera.rad1 * Math.sin(this._camera.phi),
-				this._camera.rad1 * Math.cos(this._camera.theta) * Math.cos(this._camera.phi)
-			)
-			.lookAt([0, 0, 0]);
+
+		this._camera.update();
 
 		this._box.render(this._camera);
+		this._normalHelper.render(this._camera);
+		this._gridHelper.render(this._camera);
 	}
 
 	animateOut() {
 		TweenLite.ticker.removeEventListener('tick', this.loop, this);
-	}
-
-	mouseMoveHandler(mouse) {
-		if (!this._isMouseDown) return;
-		this._camera.theta += (mouse.x - this._prevMouse.x) * Math.PI * 2;
-		this._camera.phi += (mouse.y - this._prevMouse.y) * -Math.PI * 2;
-
-		this._prevMouse = mouse;
-	}
-
-	mouseDownHandler(mouse) {
-		this._isMouseDown = true;
-		this._prevMouse = mouse;
-	}
-
-	mouseupHandler() {
-		this._isMouseDown = false;
 	}
 
 	onKeyDown(ev) {
@@ -108,30 +91,43 @@ export default class App {
 	}
 
 	destroy() {}
+
 	_setClear() {
 		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 		this.gl.enable(DEPTH_TEST);
 	}
+
 	_makeBox() {
-		this._box = new ProceduralCube(this.gl, 200, 200, 200, 4, 5, 6, {
+		let side = 100;
+		this._box = new Cube(this.gl, side * 4, side * 3, side * 2, 8, 6, 4, {
 			isWire: true
 		});
-		this._box.posTheta = 0;
-		this._box.rotTheta = 0;
+		this._box.position.y = side * 1.5;
+	}
+
+	_makeHelper() {
+		this._normalHelper = new NormalHelper(this.gl, this._box);
+		this._gridHelper = new GridHelper(this.gl, 1000, 1000, 20, 20);
 	}
 
 	_makeCamera() {
 		this._camera = new PerspectiveCamera(window.innerWidth, window.innerHeight, 60, 1, 2000);
-		this._camera.theta = 0.2;
-		this._camera.phi = 0.2;
-		this._camera.rad1 = 800;
-		this._camera.rad2 = 800;
+		this._camera.position.z = 600;
+		this._camera.position.x = -600;
+		this._camera.position.y = 200;
+		this._camera.lookAt([0, 0, 0]);
+	}
+
+	_makeCameraController() {
+		this._cameraController = new CameraController(this._camera, this.canvas);
+		this._cameraController.minDistance = 300;
+		this._cameraController.maxDistance = 1000;
 	}
 
 	_addGui() {
 		this.gui = new dat.GUI();
 		this.playAndStopGui = this.gui.add(this, '_playAndStop').name('pause');
-		this._boxGUIFolder = this.gui.addFolder('plane');
+		this._boxGUIFolder = this.gui.addFolder('rounding  cube');
 		this._box.addGui(this._boxGUIFolder);
 		this._boxGUIFolder.open();
 	}

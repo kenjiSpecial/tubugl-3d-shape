@@ -2,7 +2,7 @@
  * make demo with rendering of plane(webgl)
  */
 
-const dat = require('../vendor/dat.gui.min');
+const dat = require('dat.gui/build/dat.gui.min');
 const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
