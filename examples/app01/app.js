@@ -7,7 +7,7 @@ const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
 import { DEPTH_TEST } from 'tubugl-constants';
-import { ProceduralRoundingCube } from '../../index';
+import { ProceduralRoundingCube } from '../../src/index';
 import { NormalHelper } from 'tubugl-helper';
 import { PerspectiveCamera } from 'tubugl-camera';
 

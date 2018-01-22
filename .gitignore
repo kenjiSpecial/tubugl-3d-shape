@@ -13,3 +13,7 @@ dist
 .cache/*
 
 .vscode/*
+
+
+.history
+.history/*

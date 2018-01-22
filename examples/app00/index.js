@@ -7,7 +7,7 @@ const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
 import { COLOR_BUFFER_BIT, DEPTH_BUFFER_BIT, DEPTH_TEST } from 'tubugl-constants';
-import { ProceduralCube } from '../../index';
+import { ProceduralCube } from '../../src/index';
 import { PerspectiveCamera } from 'tubugl-camera';
 
 export default class App {
