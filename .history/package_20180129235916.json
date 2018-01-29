@@ -1,6 +1,6 @@
 {
   "name": "tubugl-3d-shape",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "3D shapes for tubugl",
   "main": "index.js",
   "license": "MIT",
