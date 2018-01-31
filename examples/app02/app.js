@@ -7,7 +7,7 @@ const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
 import { COLOR_BUFFER_BIT, DEPTH_TEST, DEPTH_BUFFER_BIT } from 'tubugl-constants';
-import { Cube } from '../../src/index';
+import { Cube } from '../../index';
 import { NormalHelper, GridHelper } from 'tubugl-helper';
 import { PerspectiveCamera, CameraController } from 'tubugl-camera';
 
@@ -99,9 +99,18 @@ export default class App {
 
 	_makeBox() {
 		let side = 100;
-		this._box = new Cube(this.gl, side * 4, side * 3, side * 2, 8, 6, 4, {
-			isWire: true
-		});
+		this._box = new Cube(
+			this.gl,
+			{
+				isWire: true
+			},
+			side * 4,
+			side * 3,
+			side * 2,
+			8,
+			6,
+			4
+		);
 		this._box.position.y = side * 1.5;
 	}
 

@@ -27,13 +27,13 @@ import { Object3D } from './object3D';
 export class Cube extends Object3D {
 	constructor(
 		gl,
+		params = { isDepthTest: true },
 		width = 100,
 		height = 100,
 		depth = 100,
 		widthSegment = 1,
 		heightSegment = 1,
-		depthSegment = 1,
-		params = { isDepthTest: true }
+		depthSegment = 1
 	) {
 		super(gl, params);
 

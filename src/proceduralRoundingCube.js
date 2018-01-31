@@ -11,17 +11,17 @@ import {
 export class ProceduralRoundingCube extends ProceduralCube {
 	constructor(
 		gl,
+		params = {},
 		width = 100,
 		height = 100,
 		depth = 100,
 		roundness = 2,
 		widthSegments = 1,
 		heightSegments = 1,
-		depthSegments = 1,
-		params = {}
+		depthSegments = 1
 	) {
 		params.roundness = roundness;
-		super(gl, width, height, depth, widthSegments, heightSegments, depthSegments, params);
+		super(gl, params, width, height, depth, widthSegments, heightSegments, depthSegments);
 	}
 
 	getNormals() {

@@ -29,13 +29,13 @@ import { Object3D } from './object3D';
 export class ProceduralCube extends Object3D {
 	constructor(
 		gl,
+		params = {},
 		width = 100,
 		height = 100,
 		depth = 100,
 		widthSegments = 1,
 		heightSegments = 1,
-		depthSegments = 1,
-		params = {}
+		depthSegments = 1
 	) {
 		super(gl, params);
 

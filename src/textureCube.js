@@ -13,7 +13,7 @@ export class TextureCube extends Cube {
 		depthSegment = 1,
 		params = {}
 	) {
-		super(gl, width, height, depth, widthSegment, heightSegment, depthSegment, params);
+		super(gl, params, width, height, depth, widthSegment, heightSegment, depthSegment);
 
 		this._texture = params.texture;
 	}
