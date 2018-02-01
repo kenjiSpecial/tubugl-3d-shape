@@ -99,7 +99,7 @@ export class Shape3D extends Object3D {
 		this._updateModelMatrix(); // method which inherit from Object3D
 		this._useProgram();
 		this._updateAttributes();
-		this._updateUniforms();
+		this._updateUniforms(camera);
 
 		return this;
 	}

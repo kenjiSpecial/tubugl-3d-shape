@@ -119,7 +119,7 @@ export class Cube extends Shape3D {
 		this._wireframeIndexCnt = this._wireframeIndexBuffer.dataArray.length;
 	}
 
-	_updateAttributres() {
+	_updateAttributes() {
 		if (this._vao) {
 			this._vao.bind();
 		} else {
@@ -135,14 +135,7 @@ export class Cube extends Shape3D {
 		if (this._isWire) this.updateWire(camera).drawWireframe();
 	}
 
-	// TODO: update 'update'
-	update(camera) {
-		this._updateModelMatrix();
-
-		this._program.bind();
-
-		this._updateAttributres();
-
+	_updateUniforms(camera) {
 		this._gl.uniformMatrix4fv(
 			this._program.getUniforms('modelMatrix').location,
 			false,
@@ -158,8 +151,6 @@ export class Cube extends Shape3D {
 			false,
 			camera.projectionMatrix
 		);
-
-		return this;
 	}
 
 	updateWire(camera) {
