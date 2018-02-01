@@ -22,9 +22,9 @@ import {
 	ONE_MINUS_SRC_ALPHA
 } from 'tubugl-constants';
 import { generateWireframeIndices } from 'tubugl-utils';
-import { Object3D } from './object3D';
+import { Shape3D } from './shape3D';
 
-export class Cube extends Object3D {
+export class Cube extends Shape3D {
 	constructor(
 		gl,
 		params = { isDepthTest: true },
@@ -44,7 +44,7 @@ export class Cube extends Object3D {
 		this._heightSegment = heightSegment;
 		this._depthSegment = depthSegment;
 
-		this._makeProgram(params);
+		this._makeProgram(params.vertexShaderSrc, params.fragmentShaderSrc);
 		this._makeBuffer(params);
 
 		if (this._isWire) {
@@ -59,15 +59,16 @@ export class Cube extends Object3D {
 	getNormals() {
 		return this._normalBuffer.dataArray;
 	}
-	_makeProgram(params) {
-		const fragmentShaderSrc = params.fragmentShaderSrc
-			? params.fragmentShaderSrc
-			: this._isGl2 ? base2ShaderFragSrc : baseUVShaderFragSrc;
-		const vertexShaderSrc = params.vertexShaderSrc
-			? params.vertexShaderSrc
-			: this._isGl2 ? base2ShaderVertSrc : baseUVShaderVertSrc;
-
-		this._program = new Program(this._gl, vertexShaderSrc, fragmentShaderSrc);
+	_makeProgram(vertexShaderSrc, fragmentShaderSrc) {
+		this._program = new Program(
+			this._gl,
+			vertexShaderSrc
+				? vertexShaderSrc
+				: this._isGl2 ? base2ShaderVertSrc : baseUVShaderVertSrc,
+			fragmentShaderSrc
+				? fragmentShaderSrc
+				: this._isGl2 ? base2ShaderFragSrc : baseUVShaderFragSrc
+		);
 	}
 
 	_makeWireframe() {
@@ -134,6 +135,7 @@ export class Cube extends Object3D {
 		if (this._isWire) this.updateWire(camera).drawWireframe();
 	}
 
+	// TODO: update 'update'
 	update(camera) {
 		this._updateModelMatrix();
 
@@ -179,27 +181,7 @@ export class Cube extends Object3D {
 	}
 
 	draw() {
-		if (this._side === 'double') {
-			this._gl.disable(CULL_FACE);
-		} else if (this._side === 'front') {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(BACK);
-		} else {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(FRONT);
-		}
-
-		if (this._isDepthTest) this._gl.enable(DEPTH_TEST);
-		else this._gl.disable(DEPTH_TEST);
-
-		if (this._isTransparent) {
-			this.gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-			this._gl.enable(BLEND);
-		} else {
-			this._gl.blendFunc(ONE, ZERO);
-			this._gl.disable(BLEND);
-		}
-
+		this._updateDrawStatus();
 		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
 
 		return this;

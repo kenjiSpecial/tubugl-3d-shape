@@ -8,8 +8,8 @@ import { mat4 } from 'gl-matrix';
  */
 export class Object3D extends EventEmitter {
 	/**
-	 *
-	 * @param {{isGl2: boolean, side: string}} params
+	 * @param {webglContext} gl
+	 * @param {{isGl2: boolean, side: string, isWirer: boolean, isDepthTest: boolean, isTransparent: boolean}} params
 	 */
 	constructor(gl, params = { isDepthTest: true }) {
 		super();
@@ -27,7 +27,6 @@ export class Object3D extends EventEmitter {
 		this._isWire = !!params.isWire;
 		this._isDepthTest = params.isDepthTest === undefined ? true : params.isDepthTest;
 		this._isTransparent = !!params.isTransparent;
-		this._params = params;
 	}
 
 	setPosition(x, y, z) {
