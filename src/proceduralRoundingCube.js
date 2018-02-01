@@ -28,7 +28,7 @@ export class ProceduralRoundingCube extends ProceduralCube {
 		return this._normalBuffer.dataArray;
 	}
 
-	_makeBuffers() {
+	_makeBuffers(params) {
 		super._makeBuffers();
 
 		let positionArray = this._positionBuffer.dataArray;
@@ -36,7 +36,7 @@ export class ProceduralRoundingCube extends ProceduralCube {
 
 		let normal = vec3.create();
 		let inner = vec3.create();
-		let roundness = this._params.roundness;
+		let roundness = params.roundness;
 		for (let ii = 0; ii < positionArray.length / 3; ii++) {
 			let xx = positionArray[3 * ii];
 			let yy = positionArray[3 * ii + 1];
@@ -81,12 +81,12 @@ export class ProceduralRoundingCube extends ProceduralCube {
 		this._normalBuffer.setAttribs('normal', 3);
 	}
 
-	_updateAttributes(prg) {
+	_updateAttributes() {
 		if (this._vao) {
 			this._vao.bind();
 		} else {
-			this._positionBuffer.bind().attribPointer(prg);
-			this._normalBuffer.bind().attribPointer(prg);
+			this._positionBuffer.bind().attribPointer(this._program);
+			this._normalBuffer.bind().attribPointer(this._program);
 			this._indexBuffer.bind();
 		}
 	}

@@ -24,9 +24,9 @@ import {
 } from 'tubugl-constants';
 
 import { generateWireframeIndices } from 'tubugl-utils';
-import { Object3D } from './object3D';
+import { Shape3D } from './shape3D';
 
-export class ProceduralCube extends Object3D {
+export class ProceduralCube extends Shape3D {
 	constructor(
 		gl,
 		params = {},
@@ -47,7 +47,7 @@ export class ProceduralCube extends Object3D {
 		this._depthSegments = depthSegments;
 
 		this._makeProgram(params);
-		this._makeBuffers();
+		this._makeBuffers(params);
 
 		if (this._isWire) {
 			this._makeWireframe();
@@ -64,25 +64,6 @@ export class ProceduralCube extends Object3D {
 	render(camera) {
 		this.update(camera).draw();
 		if (this._isWire) this.updateWire(camera).drawWireframe();
-	}
-
-	update(camera) {
-		this._updateModelMatrix();
-
-		let prg = this._program;
-		prg.bind();
-
-		this._updateAttributes(prg);
-
-		this._gl.uniformMatrix4fv(prg.getUniforms('modelMatrix').location, false, this.modelMatrix);
-		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
-		this._gl.uniformMatrix4fv(
-			prg.getUniforms('projectionMatrix').location,
-			false,
-			camera.projectionMatrix
-		);
-
-		return this;
 	}
 
 	updateWire(camera) {
@@ -216,6 +197,7 @@ export class ProceduralCube extends Object3D {
 				this._depthSegments
 			)
 		);
+
 		this._cnt = this._indexBuffer.dataArray.length;
 	}
 
@@ -227,13 +209,31 @@ export class ProceduralCube extends Object3D {
 		this._wireframeIndexCnt = this._wireframeIndexBuffer.dataArray.length;
 	}
 
-	_updateAttributes(prg) {
+	_updateAttributes() {
 		if (this._vao) {
 			this._vao.bind();
 		} else {
-			this._positionBuffer.bind().attribPointer(prg);
+			this._positionBuffer.bind().attribPointer(this._program);
 			this._indexBuffer.bind();
 		}
+	}
+
+	_updateUniforms(camera) {
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('modelMatrix').location,
+			false,
+			this.modelMatrix
+		);
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('viewMatrix').location,
+			false,
+			camera.viewMatrix
+		);
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('projectionMatrix').location,
+			false,
+			camera.projectionMatrix
+		);
 	}
 
 	static getVertices(width, height, depth, widthSegments, heightSegments, depthSegments) {

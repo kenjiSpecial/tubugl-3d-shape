@@ -1,4 +1,4 @@
-import { Object3D } from './object3D';
+import { Shape3D } from './shape3D';
 import { vec3 } from 'gl-matrix';
 
 import { generateWireframeIndices } from 'tubugl-utils';
@@ -28,7 +28,7 @@ import {
 
 import { Program, ArrayBuffer, IndexArrayBuffer, VAO } from 'tubugl-core';
 
-export class Sphere extends Object3D {
+export class Sphere extends Shape3D {
 	/**
 	 *
 	 * @param {webglContext} gl
@@ -86,25 +86,6 @@ export class Sphere extends Object3D {
 	render(camera) {
 		this.update(camera).draw();
 		if (this._isWire) this.updateWire(camera).drawWireframe();
-	}
-
-	update(camera) {
-		this._updateModelMatrix();
-
-		let prg = this._program;
-		prg.bind();
-
-		this._updateAttributes(prg);
-
-		this._gl.uniformMatrix4fv(prg.getUniforms('modelMatrix').location, false, this.modelMatrix);
-		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
-		this._gl.uniformMatrix4fv(
-			prg.getUniforms('projectionMatrix').location,
-			false,
-			camera.projectionMatrix
-		);
-
-		return this;
 	}
 
 	updateWire(camera) {
@@ -236,15 +217,34 @@ export class Sphere extends Object3D {
 		);
 		this._wireframeIndexCnt = this._wireframeIndexBuffer.dataArray.length;
 	}
-	_updateAttributes(prg) {
+
+	_updateAttributes() {
 		if (this._vao) {
 			this._vao.bind();
 		} else {
-			this._positionBuffer.bind().attribPointer(prg);
-			this._normalBuffer.bind().attribPointer(prg);
-			this._uvBuffer.bind().attribPointer(prg);
+			this._positionBuffer.bind().attribPointer(this._program);
+			this._normalBuffer.bind().attribPointer(this._program);
+			this._uvBuffer.bind().attribPointer(this._program);
 			this._indexBuffer.bind();
 		}
+	}
+
+	_updateUniforms(camera) {
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('modelMatrix').location,
+			false,
+			this.modelMatrix
+		);
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('viewMatrix').location,
+			false,
+			camera.viewMatrix
+		);
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('projectionMatrix').location,
+			false,
+			camera.projectionMatrix
+		);
 	}
 
 	static getData(

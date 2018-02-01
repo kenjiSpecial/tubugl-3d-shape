@@ -26,8 +26,9 @@ import {
 } from 'tubugl-constants';
 
 import { generateWireframeIndices } from 'tubugl-utils';
+import { Shape3D } from './shape3D';
 
-export class ProceduralSphere extends Object3D {
+export class ProceduralSphere extends Shape3D {
 	constructor(gl, params = {}, rad = 100, segments = 10) {
 		super(gl, params);
 		this._rad = rad;

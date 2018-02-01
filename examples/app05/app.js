@@ -48,18 +48,7 @@ export default class App {
 		gl.viewport(0, 0, this._width, this._height);
 
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		// this._camera
-		// 	.updatePosition(
-		// 		this._camera.rad * Math.sin(this._camera.theta) * Math.cos(this._camera.phi),
-		// 		this._camera.rad * Math.sin(this._camera.phi),
-		// 		this._camera.rad * Math.cos(this._camera.theta) * Math.cos(this._camera.phi)
-		// 	)
-		// 	.lookAt([0, 0, 0]);
-
 		this._box.render(this._camera);
-		// console.log(this._box.position);
-		// this._box.position.x = 100;
-		// console.log(this._position);
 		this._normalHelper.render(this._camera);
 		this._gridHelper.render(this._camera);
 	}

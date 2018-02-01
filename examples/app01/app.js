@@ -56,9 +56,6 @@ export default class App {
 			.lookAt([0, 0, 0]);
 
 		this._box.render(this._camera);
-		// console.log(this._box.position);
-		// this._box.position.x = 100;
-		// console.log(this._position);
 		this._normalHelper.render(this._camera);
 	}
 

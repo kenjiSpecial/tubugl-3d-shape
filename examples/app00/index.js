@@ -113,9 +113,18 @@ export default class App {
 		this.gl.enable(DEPTH_TEST);
 	}
 	_makeBox() {
-		this._box = new ProceduralCube(this.gl, 200, 200, 200, 4, 5, 6, {
-			isWire: true
-		});
+		this._box = new ProceduralCube(
+			this.gl,
+			{
+				isWire: true
+			},
+			200,
+			200,
+			200,
+			4,
+			5,
+			6
+		);
 		this._box.posTheta = 0;
 		this._box.rotTheta = 0;
 	}
