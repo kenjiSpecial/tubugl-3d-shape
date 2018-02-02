@@ -6,20 +6,10 @@ const dat = require('../vendor/dat.gui.min');
 const TweenLite = require('gsap/TweenLite');
 const Stats = require('stats.js');
 
-import {
-	DEPTH_TEST
-} from 'tubugl-constants';
-import {
-	Cone
-} from '../../index';
-import {
-	NormalHelper,
-	GridHelper
-} from 'tubugl-helper';
-import {
-	PerspectiveCamera,
-	CameraController
-} from 'tubugl-camera';
+import { DEPTH_TEST } from 'tubugl-constants';
+import { Cone } from '../../index';
+import { NormalHelper, GridHelper } from 'tubugl-helper';
+import { PerspectiveCamera, CameraController } from 'tubugl-camera';
 
 export default class App {
 	constructor(params = {}) {
@@ -59,7 +49,7 @@ export default class App {
 
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		this._cone.render(this._camera);
-		this._normalHelper.render(this._camera);
+		// this._normalHelper.render(this._camera);
 		this._gridHelper.render(this._camera);
 	}
 
@@ -106,13 +96,21 @@ export default class App {
 	}
 
 	_makeObject() {
-		this._cone = new Cone(this.gl, {
-			isWire: true
-		}, 100, 100, 3);
+		this._cone = new Cone(
+			this.gl,
+			{
+				isWire: true,
+				side: 'front'
+			},
+			100,
+			100,
+			20
+		);
+		this._cone.position.y = 50;
 	}
 
 	_makeHelper() {
-		// this._normalHelper = new NormalHelper(this.gl, this._box);
+		// this._normalHelper = new NormalHelper(this.gl, this._cone);
 		this._gridHelper = new GridHelper(this.gl, 1000, 1000, 20, 20);
 	}
 

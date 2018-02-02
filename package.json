@@ -1,6 +1,6 @@
 {
   "name": "tubugl-3d-shape",
-  "version": "1.3.4",
+  "version": "1.4.0",
   "description": "3D shapes for tubugl",
   "main": "index.js",
   "license": "MIT",
@@ -18,12 +18,14 @@
     "dist03": "parcel build examples/app03/index.html -d docs/app03 --public-url ./",
     "dist04": "parcel build examples/app04/index.html -d docs/app04 --public-url ./",
     "dist05": "parcel build examples/app05/index.html -d docs/app05 --public-url ./",
+    "dist06": "parcel build examples/app06/index.html -d docs/app06 --public-url ./",
     "screenshot00": "node ./node/screenshot.js --dir=app00",
     "screenshot01": "node ./node/screenshot.js --dir=app01",
     "screenshot02": "node ./node/screenshot.js --dir=app02",
     "screenshot03": "node ./node/screenshot.js --dir=app03",
     "screenshot04": "node ./node/screenshot.js --dir=app04",
     "screenshot05": "node ./node/screenshot.js --dir=app05",
+    "screenshot06": "node ./node/screenshot.js --dir=app06",
     "docs": "python -m SimpleHTTPServer 8000"
   },
   "dependencies": {

@@ -1,11 +1,5 @@
-import {
-	Shape3D
-} from './shape3D';
-import {
-	ArrayBuffer,
-	IndexArrayBuffer,
-	Program
-} from 'tubugl-core';
+import { Shape3D } from './shape3D';
+import { ArrayBuffer, IndexArrayBuffer, Program } from 'tubugl-core';
 import {
 	normalShaderFragSrc,
 	normalShaderVertSrc,
@@ -30,12 +24,7 @@ import {
 	ONE_MINUS_SRC_ALPHA
 } from 'tubugl-constants';
 
-import {
-	generateWireframeIndices
-} from 'tubugl-utils';
-import {
-	vec3
-} from 'gl-matrix';
+import { vec3 } from 'gl-matrix';
 
 export class Cone extends Shape3D {
 	constructor(gl, params, radius, height, radialSegments = 3) {
@@ -68,7 +57,7 @@ export class Cone extends Shape3D {
 
 	render(camera) {
 		this.update(camera).draw();
-		// if(this._isWire) this.update
+		if (this._isWire) this.updateWire(camera).drawWireframe();
 	}
 
 	addGui(gui) {
@@ -103,44 +92,47 @@ export class Cone extends Shape3D {
 	// ========================
 
 	_makeProgram(params) {
-		const vertexShaderSrc = params.vertexShaderSrc ?
-			params.vertexShaderSrc :
-			this._isGl2 ? base2ShaderVertSrc : normalShaderVertSrc;
-		const fragmentShaderSrc = params.fragmentShaderSrc ?
-			params.fragmentShaderSrc :
-			this._isGl2 ? base2ShaderFragSrc : normalShaderFragSrc;
+		const vertexShaderSrc = params.vertexShaderSrc
+			? params.vertexShaderSrc
+			: this._isGl2 ? base2ShaderVertSrc : normalShaderVertSrc;
+		const fragmentShaderSrc = params.fragmentShaderSrc
+			? params.fragmentShaderSrc
+			: this._isGl2 ? base2ShaderFragSrc : normalShaderFragSrc;
 
 		this._program = new Program(this._gl, vertexShaderSrc, fragmentShaderSrc);
 	}
+
 	_makeWireframe() {
 		this._wireframeProgram = new Program(this._gl, baseShaderVertSrc, wireFrameFragSrc);
 	}
+
 	_makeBuffers() {
 		let vertices = [];
 		let rawVertices = [];
 		let indices = [];
 		let normals = [];
 
-		let zPos = -this._height / 2;
+		let yPos = -this._height / 2;
 
 		// make bottom part of shape
-		rawVertices.push(0, 0, -this._height / 2);
+		rawVertices.push(0, yPos, 0);
 
 		for (let ii = 0; ii < this._radialSegments; ii++) {
 			let theta = ii / this._radialSegments * 2 * Math.PI;
 			let xPos = Math.cos(theta) * this._radius;
-			let yPos = Math.sin(theta) * this._radius;
+			let zPos = Math.sin(theta) * this._radius;
 
 			rawVertices.push(xPos, yPos, zPos);
 		}
 
 		// make side part of shape
-		rawVertices.push(0, 0, this._height / 2);
+
+		rawVertices.push(0, -yPos, 0);
 
 		for (let ii = 0; ii < this._radialSegments; ii++) {
 			let theta = ii / this._radialSegments * 2 * Math.PI;
 			let xPos = Math.cos(theta) * this._radius;
-			let yPos = Math.sin(theta) * this._radius;
+			let zPos = Math.sin(theta) * this._radius;
 
 			rawVertices.push(xPos, yPos, zPos);
 		}
@@ -159,7 +151,7 @@ export class Cone extends Shape3D {
 			let curIndex = ii + this._radialSegments + 2;
 			let nextIndex = (ii + 1) % this._radialSegments + this._radialSegments + 2;
 			let center = this._radialSegments + 1;
-			indices.push(curIndex, nextIndex, center);
+			indices.push(curIndex, center, nextIndex);
 		}
 
 		// ----------------------
@@ -207,5 +199,93 @@ export class Cone extends Shape3D {
 			}
 		}
 
+		this._positionBuffer = new ArrayBuffer(this._gl, new Float32Array(vertices));
+		this._positionBuffer.setAttribs('position', 3);
+
+		this._normalBuffer = new ArrayBuffer(this._gl, new Float32Array(normals));
+		this._normalBuffer.setAttribs('normal', 3);
+
+		this._cnt = vertices.length / 3;
+	}
+
+	_makeWireframeBuffer() {
+		let vertices = [];
+		let yPos = -this._height / 2;
+		let topPos = { x: 0, y: -yPos, z: 0 };
+		let bottomPos = { x: 0, y: yPos, z: 0 };
+
+		for (let ii = 0; ii < this._radialSegments; ii++) {
+			let theta = ii / this._radialSegments * 2 * Math.PI;
+			let nextTheta = (ii + 1) / this._radialSegments * 2 * Math.PI;
+
+			let xPos = Math.cos(theta) * this._radius;
+			let zPos = Math.sin(theta) * this._radius;
+
+			let nextXPos = Math.cos(nextTheta) * this._radius;
+			let nextZPos = Math.sin(nextTheta) * this._radius;
+
+			vertices.push(xPos, yPos, zPos, nextXPos, yPos, nextZPos);
+			vertices.push(nextXPos, yPos, nextZPos, topPos.x, topPos.y, topPos.z);
+			vertices.push(topPos.x, topPos.y, topPos.z, xPos, yPos, zPos);
+			vertices.push(xPos, yPos, zPos, bottomPos.x, bottomPos.y, bottomPos.z);
+			vertices.push(nextXPos, yPos, nextZPos, bottomPos.x, bottomPos.y, bottomPos.z);
+		}
+
+		this._wirePositionBuffer = new ArrayBuffer(this._gl, new Float32Array(vertices));
+		this._wirePositionBuffer.setAttribs('position', 3);
+
+		this._wireframeCnt = vertices.length / 3;
+	}
+
+	_updateUniforms(camera) {
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('modelMatrix').location,
+			false,
+			this.modelMatrix
+		);
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('viewMatrix').location,
+			false,
+			camera.viewMatrix
+		);
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('projectionMatrix').location,
+			false,
+			camera.projectionMatrix
+		);
+	}
+
+	_updateAttributes() {
+		this._positionBuffer.bind().attribPointer(this._program);
+		this._normalBuffer.bind().attribPointer(this._program);
+	}
+
+	draw() {
+		this._updateDrawStatus();
+		this._gl.drawArrays(TRIANGLES, 0, this._cnt);
+
+		return this;
+	}
+	updateWire(camera) {
+		let prg = this._wireframeProgram;
+
+		prg.bind();
+		this._wirePositionBuffer.bind().attribPointer(prg);
+		// this._wireframeIndexBuffer.bind();
+
+		this._gl.uniformMatrix4fv(prg.getUniforms('modelMatrix').location, false, this.modelMatrix);
+		this._gl.uniformMatrix4fv(prg.getUniforms('viewMatrix').location, false, camera.viewMatrix);
+		this._gl.uniformMatrix4fv(
+			prg.getUniforms('projectionMatrix').location,
+			false,
+			camera.projectionMatrix
+		);
+
+		return this;
+	}
+
+	drawWireframe() {
+		this._gl.drawArrays(LINES, 0, this._wireframeCnt);
+		return this;
 	}
 }

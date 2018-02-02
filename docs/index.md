@@ -38,5 +38,13 @@ GitHub: [https://github.com/kenjiSpecial/tubugl-3d-shape](https://github.com/ken
 
 [codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app05) | [source for ProceduralSphere](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/proceduralSphere.js)
 
+### [#06 -  cone](./app06/index.html)
+
+[![](./app06/thumbnail.png)](./app06/index.html)
+
+[codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app06) | [source for Cone](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/cone.js)
+
+
+
 all examples were made with [tubugl](https://github.com/kenjiSpecial/tubugl)
 
