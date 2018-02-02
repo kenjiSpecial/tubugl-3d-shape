@@ -11,6 +11,7 @@
     "app03": "parcel examples/app03/index.html --no-hmr",
     "app04": "parcel examples/app04/index.html --no-hmr",
     "app05": "parcel examples/app05/index.html --no-hmr",
+    "app06": "parcel examples/app06/index.html --no-hmr",
     "dist00": "parcel build examples/app00/index.html -d docs/app00 --public-url ./",
     "dist01": "parcel build examples/app01/index.html -d docs/app01 --public-url ./",
     "dist02": "parcel build examples/app02/index.html -d docs/app02 --public-url ./",

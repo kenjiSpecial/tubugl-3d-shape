@@ -1,6 +1,5 @@
-// import { ProceduralCube } from './proceduralCube';
-import { Object3D } from './object3D';
 import { ArrayBuffer, IndexArrayBuffer, Program } from 'tubugl-core';
+import { Shape3D } from './shape3D';
 import {
 	normalShaderFragSrc,
 	normalShaderVertSrc,
@@ -26,12 +25,11 @@ import {
 } from 'tubugl-constants';
 
 import { generateWireframeIndices } from 'tubugl-utils';
-import { Shape3D } from './shape3D';
 
 export class ProceduralSphere extends Shape3D {
-	constructor(gl, params = {}, rad = 100, segments = 10) {
+	constructor(gl, params = {}, radius = 100, segments = 10) {
 		super(gl, params);
-		this._rad = rad;
+		this._radius = radius;
 		this._segments = segments;
 
 		this._makeProgram(params);
@@ -53,32 +51,6 @@ export class ProceduralSphere extends Shape3D {
 	render(camera) {
 		this.update(camera).draw();
 		if (this._isWire) this.updateWire(camera).drawWireframe();
-	}
-
-	update(camera) {
-		this._updateModelMatrix();
-
-		this._program.bind();
-
-		this._updateAttributes(this._program);
-
-		this._gl.uniformMatrix4fv(
-			this._program.getUniforms('modelMatrix').location,
-			false,
-			this.modelMatrix
-		);
-		this._gl.uniformMatrix4fv(
-			this._program.getUniforms('viewMatrix').location,
-			false,
-			camera.viewMatrix
-		);
-		this._gl.uniformMatrix4fv(
-			this._program.getUniforms('projectionMatrix').location,
-			false,
-			camera.projectionMatrix
-		);
-
-		return this;
 	}
 
 	updateWire(camera) {
@@ -187,7 +159,15 @@ export class ProceduralSphere extends Shape3D {
 
 		for (let yy = 0; yy <= this._segments; yy++) {
 			for (let xx = 0; xx <= this._segments; xx++)
-				ProceduralSphere.getVertex(vertices, normals, xx, yy, 0, this._rad, this._segments);
+				ProceduralSphere.getVertex(
+					vertices,
+					normals,
+					xx,
+					yy,
+					0,
+					this._radius,
+					this._segments
+				);
 
 			for (let zz = 1; zz <= this._segments; zz++)
 				ProceduralSphere.getVertex(
@@ -196,7 +176,7 @@ export class ProceduralSphere extends Shape3D {
 					this._segments,
 					yy,
 					zz,
-					this._rad,
+					this._radius,
 					this._segments
 				);
 
@@ -207,12 +187,20 @@ export class ProceduralSphere extends Shape3D {
 					xx,
 					yy,
 					this._segments,
-					this._rad,
+					this._radius,
 					this._segments
 				);
 
 			for (let zz = this._segments - 1; zz > 0; zz--)
-				ProceduralSphere.getVertex(vertices, normals, 0, yy, zz, this._rad, this._segments);
+				ProceduralSphere.getVertex(
+					vertices,
+					normals,
+					0,
+					yy,
+					zz,
+					this._radius,
+					this._segments
+				);
 		}
 
 		for (let zz = 1; zz < this._segments; zz++)
@@ -223,13 +211,21 @@ export class ProceduralSphere extends Shape3D {
 					xx,
 					this._segments,
 					zz,
-					this._rad,
+					this._radius,
 					this._segments
 				);
 
 		for (let zz = 1; zz < this._segments; zz++)
 			for (let xx = 1; xx < this._segments; xx++)
-				ProceduralSphere.getVertex(vertices, normals, xx, 0, zz, this._rad, this._segments);
+				ProceduralSphere.getVertex(
+					vertices,
+					normals,
+					xx,
+					0,
+					zz,
+					this._radius,
+					this._segments
+				);
 
 		let indexNum = 0;
 		let indices = [];
@@ -282,12 +278,30 @@ export class ProceduralSphere extends Shape3D {
 		this._wireframeIndexCnt = this._wireframeIndexBuffer.dataArray.length;
 	}
 
-	_updateAttributes(prg) {
+	_updateUniforms(camera) {
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('modelMatrix').location,
+			false,
+			this.modelMatrix
+		);
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('viewMatrix').location,
+			false,
+			camera.viewMatrix
+		);
+		this._gl.uniformMatrix4fv(
+			this._program.getUniforms('projectionMatrix').location,
+			false,
+			camera.projectionMatrix
+		);
+	}
+
+	_updateAttributes() {
 		if (this._vao) {
 			this._vao.bind();
 		} else {
-			this._positionBuffer.bind().attribPointer(prg);
-			this._normalBuffer.bind().attribPointer(prg);
+			this._positionBuffer.bind().attribPointer(this._program);
+			this._normalBuffer.bind().attribPointer(this._program);
 			this._indexBuffer.bind();
 		}
 	}
@@ -405,7 +419,7 @@ export class ProceduralSphere extends Shape3D {
 		return indexNum;
 	}
 
-	static getVertex(vertices, normals, xx, yy, zz, rad, segment) {
+	static getVertex(vertices, normals, xx, yy, zz, radius, segment) {
 		let vec = [xx * 2 / segment - 1, yy * 2 / segment - 1, zz * 2 / segment - 1];
 
 		let x2 = vec[0] * vec[0];
@@ -417,7 +431,7 @@ export class ProceduralSphere extends Shape3D {
 		ss[2] = vec[2] * Math.sqrt(1 - x2 / 2 - y2 / 2 + x2 * y2 / 3);
 
 		normals.push(ss[0], ss[1], ss[2]);
-		vertices.push(rad * ss[0], rad * ss[1], rad * ss[2]);
+		vertices.push(radius * ss[0], radius * ss[1], radius * ss[2]);
 	}
 
 	static setQuad(indices, ii, v00, v10, v01, v11) {
