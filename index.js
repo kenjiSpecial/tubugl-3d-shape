@@ -5,3 +5,4 @@ export { ProceduralRoundingCube } from './src/proceduralRoundingCube';
 export { ProceduralSphere } from './src/proceduralSphere';
 export { Sphere } from './src/sphere';
 export { Cone } from './src/cone';
+export { Cylinder } from './src/cylinder';

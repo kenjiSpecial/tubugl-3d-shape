@@ -7,20 +7,7 @@ import {
 	baseShaderVertSrc
 } from './shaders/base.shader';
 import { Program, ArrayBuffer, IndexArrayBuffer, VAO } from 'tubugl-core';
-import {
-	CULL_FACE,
-	FRONT,
-	BACK,
-	TRIANGLES,
-	UNSIGNED_SHORT,
-	DEPTH_TEST,
-	SRC_ALPHA,
-	ONE,
-	ZERO,
-	BLEND,
-	LINES,
-	ONE_MINUS_SRC_ALPHA
-} from 'tubugl-constants';
+import { TRIANGLES, UNSIGNED_SHORT, LINES } from 'tubugl-constants';
 import { generateWireframeIndices } from 'tubugl-utils';
 import { Shape3D } from './shape3D';
 
