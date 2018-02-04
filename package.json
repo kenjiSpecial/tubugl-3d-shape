@@ -4,7 +4,7 @@
   "description": "3D shapes for tubugl",
   "main": "index.js",
   "repository": "kenjiSpecial/tubugl-3d-shape",
-  "author" : "Kenji",
+  "author": "Kenji",
   "license": "MIT",
   "scripts": {
     "app00": "parcel examples/app00/index.html --no-hmr",
@@ -43,7 +43,7 @@
     "tubugl-core": "^1.1.8",
     "tubugl-helper": "^1.0.2",
     "tubugl-math": "^1.1.9",
-    "tubugl-utils": "^1.0.5",
+    "tubugl-utils": "^1.0.7",
     "wolfy87-eventemitter": "^5.2.4"
   },
   "devDependencies": {
