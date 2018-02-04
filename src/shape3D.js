@@ -21,6 +21,7 @@ export class Shape3D extends Object3D {
 	 */
 	constructor(gl, params = {}) {
 		super(gl, params);
+		this.disableUpdateModelMatrix = !!params.disableUpdateModelMatrix;
 	}
 
 	_makeProgram(vertexShaderSrc, fragmentShaderSrc) {
@@ -96,7 +97,7 @@ export class Shape3D extends Object3D {
 	}
 
 	update(camera) {
-		this._updateModelMatrix(); // method which inherit from Object3D
+		if (!this.disableUpdateModelMatrix) this._updateModelMatrix(); // method which inherit from Object3D
 		this._useProgram();
 		this._updateAttributes();
 		this._updateUniforms(camera);

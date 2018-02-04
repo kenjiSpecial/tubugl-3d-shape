@@ -45,11 +45,19 @@ GitHub: [https://github.com/kenjiSpecial/tubugl-3d-shape](https://github.com/ken
 [codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app06) | [source for Cone](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/cone.js)
 
 
-### [#06 -  cylinder](./app07/index.html)
+### [#07 -  cylinder](./app07/index.html)
 
 [![](./app07/thumbnail.png)](./app07/index.html)
 
 [codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app07) | [source for Cylinder](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/cylinder.js)
+
+
+### [#08 - multiple cylinders](./app08/index.html)
+
+[![](./app08/thumbnail.png)](./app08/index.html)
+
+[codes](https://github.com/kenjiSpecial/tubugl-3d-shape/tree/master/examples/app08) | [source for Cylinder](https://github.com/kenjiSpecial/tubugl-3d-shape/blob/master/src/cylinder.js)
+
 
 all examples were made with [tubugl](https://github.com/kenjiSpecial/tubugl)
 

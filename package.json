@@ -1,6 +1,6 @@
 {
   "name": "tubugl-3d-shape",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "3D shapes for tubugl",
   "main": "index.js",
   "license": "MIT",
@@ -13,6 +13,7 @@
     "app05": "parcel examples/app05/index.html --no-hmr",
     "app06": "parcel examples/app06/index.html --no-hmr",
     "app07": "parcel examples/app07/index.html --no-hmr",
+    "app08": "parcel examples/app08/index.html --no-hmr",
     "dist00": "parcel build examples/app00/index.html -d docs/app00 --public-url ./",
     "dist01": "parcel build examples/app01/index.html -d docs/app01 --public-url ./",
     "dist02": "parcel build examples/app02/index.html -d docs/app02 --public-url ./",
@@ -21,6 +22,7 @@
     "dist05": "parcel build examples/app05/index.html -d docs/app05 --public-url ./",
     "dist06": "parcel build examples/app06/index.html -d docs/app06 --public-url ./",
     "dist07": "parcel build examples/app07/index.html -d docs/app07 --public-url ./",
+    "dist08": "parcel build examples/app08/index.html -d docs/app08 --public-url ./",
     "screenshot00": "node ./node/screenshot.js --dir=app00",
     "screenshot01": "node ./node/screenshot.js --dir=app01",
     "screenshot02": "node ./node/screenshot.js --dir=app02",
@@ -29,6 +31,7 @@
     "screenshot05": "node ./node/screenshot.js --dir=app05",
     "screenshot06": "node ./node/screenshot.js --dir=app06",
     "screenshot07": "node ./node/screenshot.js --dir=app07",
+    "screenshot08": "node ./node/screenshot.js --dir=app08",
     "docs": "python -m SimpleHTTPServer 8000"
   },
   "dependencies": {

@@ -29,6 +29,10 @@ export class Object3D extends EventEmitter {
 		this._isTransparent = !!params.isTransparent;
 	}
 
+	updateModelMatrix(matrix) {
+		mat4.copy(this.modelMatrix, matrix);
+	}
+
 	setPosition(x, y, z) {
 		this._isNeedUpdate = true;
 
