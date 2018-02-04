@@ -1,6 +1,6 @@
 {
   "name": "tubugl-3d-shape",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "3D shapes for tubugl",
   "main": "index.js",
   "repository": "kenjiSpecial/tubugl-3d-shape",
