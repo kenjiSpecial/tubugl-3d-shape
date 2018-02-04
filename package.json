@@ -1,8 +1,10 @@
 {
   "name": "tubugl-3d-shape",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "3D shapes for tubugl",
   "main": "index.js",
+  "repository": "kenjiSpecial/tubugl-3d-shape",
+  "author" : "Kenji",
   "license": "MIT",
   "scripts": {
     "app00": "parcel examples/app00/index.html --no-hmr",
