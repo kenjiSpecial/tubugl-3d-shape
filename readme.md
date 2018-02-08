@@ -39,6 +39,8 @@ yarn run
 
 - [x] support texture
 - [x] support vertexArrayObject for webgl2 supported browser
+- [ ] bug: transparent shape overalap some faces(!?)
+- [ ] bug: cylinder different top/bottom radius 
 
 [npm-image]: https://img.shields.io/npm/v/tubugl-3d-shape.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/tubugl-3d-shape 
