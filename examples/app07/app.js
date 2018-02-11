@@ -49,7 +49,9 @@ export default class App {
 		gl.viewport(0, 0, this._width, this._height);
 
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		this._cylinder.render(this._camera);
+		[this._cylinder, this._cylinder2].forEach(cylinder => {
+			cylinder.render(this._camera);
+		});
 		if (this._isNormal) this._normalHelper.render(this._camera);
 		this._gridHelper.render(this._camera);
 	}
@@ -86,6 +88,7 @@ export default class App {
 		this.gl.viewport(0, 0, this._width, this._height);
 
 		this._cylinder.resize(this._width, this._height);
+		this._cylinder2.resize(this._width, this._height);
 		this._camera.updateSize(this._width, this._height);
 	}
 
@@ -97,8 +100,13 @@ export default class App {
 	}
 
 	_makeObject() {
-		this._cylinder = new Cylinder(this.gl, { isWire: true }, 100, 100, 100, 20, 2);
+		this._cylinder = new Cylinder(this.gl, { isWire: true }, 100, 100, 100, 20, 4);
 		this._cylinder.position.y = 50;
+		this._cylinder.position.x = -110;
+
+		this._cylinder2 = new Cylinder(this.gl, { isWire: true }, 25, 100, 100, 20, 4);
+		this._cylinder2.position.y = 50;
+		this._cylinder2.position.x = 110;
 	}
 
 	_makeHelper() {

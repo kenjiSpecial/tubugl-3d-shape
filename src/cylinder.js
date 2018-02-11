@@ -142,7 +142,7 @@ export class Cylinder extends Shape3D {
 			let indexRow = [];
 			let vv = yy / this._heightSegments;
 
-			let radius = vv * (this._radiusBottom - this._radiusTop) + this._radiusBottom;
+			let radius = vv * (this._radiusBottom - this._radiusTop) + this._radiusTop;
 
 			for (let xx = 0; xx <= this._radialSegments; xx++) {
 				let uu = xx / this._radialSegments;
