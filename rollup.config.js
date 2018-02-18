@@ -13,7 +13,7 @@ import babelrc from 'babelrc-rollup';
 export default [
 	// browser-friendly UMD build
 	{
-		input: 'index.js',
+		input: './src/index.js',
 		output: {
 			name: pkg.libName,
 			file: pkg.main,
@@ -26,12 +26,12 @@ export default [
 		]
 	},
 	{
-		input: 'index.js',
+		input: './src/index.js',
 		output: [{ file: pkg.cjs, format: 'cjs' }],
 		plugins: [babel(babelrc())]
 	},
 	{
-		input: 'index.js',
+		input: './src/index.js',
 		output: [{ file: pkg.module, format: 'es' }]
 	}
 ];

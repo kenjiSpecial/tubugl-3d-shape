@@ -2403,3 +2403,5 @@ exports.ProceduralSphere = ProceduralSphere;
 exports.Sphere = Sphere;
 exports.Cone = Cone;
 exports.Cylinder = Cylinder;
+exports.Object3D = Object3D;
+exports.Shape3D = Shape3D;

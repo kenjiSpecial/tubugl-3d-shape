@@ -1,6 +1,6 @@
 {
   "name": "tubugl-3d-shape",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "3D shapes for tubugl",
   "cjs": "build/tubu-3d-shape.cjs.js",
   "module": "build/tubu-3d-shape.esm.js",

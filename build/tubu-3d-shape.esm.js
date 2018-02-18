@@ -2594,4 +2594,4 @@ class Cylinder extends Shape3D {
 	}
 }
 
-export { Cube, TextureCube, ProceduralCube, ProceduralRoundingCube, ProceduralSphere, Sphere, Cone, Cylinder };
+export { Cube, TextureCube, ProceduralCube, ProceduralRoundingCube, ProceduralSphere, Sphere, Cone, Cylinder, Object3D, Shape3D };
