@@ -6,7 +6,10 @@
   "module": "build/tubu-3d-shape.esm.js",
   "main": "build/tubu-3d-shape.js",
   "libName": "Tubu",
-  "repository": "kenjiSpecial/tubugl-3d-shape",
+  "repository": {
+    "type": "git",
+    "url": "kenjiSpecial/tubugl-3d-shape",
+  },
   "author": "Kenji",
   "license": "MIT",
   "scripts": {
