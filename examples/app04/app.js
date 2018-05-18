@@ -4,12 +4,19 @@
 
 const dat = require('../vendor/dat.gui.min');
 const TweenLite = require('gsap/TweenLite');
-const Stats = require('stats.js');
+const Stats = require('../vendor/stats.min');
 
-import { COLOR_BUFFER_BIT, DEPTH_TEST, DEPTH_BUFFER_BIT } from 'tubugl-constants';
-import { Sphere } from '../../index';
-import { NormalHelper, GridHelper } from 'tubugl-helper';
-import { PerspectiveCamera, CameraController } from 'tubugl-camera';
+import {
+	Sphere
+} from '../../src/index';
+import {
+	NormalHelper,
+	GridHelper
+} from 'tubugl-helper';
+import {
+	PerspectiveCamera,
+	CameraController
+} from 'tubugl-camera';
 
 export default class App {
 	constructor(params = {}) {
@@ -46,7 +53,7 @@ export default class App {
 
 		let gl = this.gl;
 		gl.viewport(0, 0, this._width, this._height);
-		gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+		gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
 		this._camera.update();
 
@@ -94,18 +101,20 @@ export default class App {
 
 	_setClear() {
 		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-		this.gl.enable(DEPTH_TEST);
+		this.gl.enable(this.gl.DEPTH_TEST);
 	}
 
 	_makeBox() {
 		let side = 150;
-		this._sphere = new Sphere(this.gl, { isWire: true }, side, 15, 15);
+		this._sphere = new Sphere(this.gl, {
+			isWire: true
+		}, side, 15, 15);
 		this._sphere.position.y = side * 1 + 50;
 	}
 
 	_makeHelper() {
 		this._normalHelper = new NormalHelper(this.gl, this._sphere);
-		this._gridHelper = new GridHelper(this.gl, 1000, 1000, 20, 20);
+		this._gridHelper = new GridHelper(this.gl, {}, 1000, 1000, 20, 20);
 	}
 
 	_makeCamera() {

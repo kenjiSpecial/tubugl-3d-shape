@@ -1,18 +1,6 @@
 import { Program, ArrayBuffer } from 'tubugl-core';
 import { Object3D } from './object3D';
 import { IndexArrayBuffer } from 'tubugl-core/src/indexArrayBuffer';
-import {
-	CULL_FACE,
-	BACK,
-	FRONT,
-	DEPTH_TEST,
-	SRC_ALPHA,
-	ONE_MINUS_SRC_ALPHA,
-	BLEND,
-	ONE,
-	ZERO
-} from 'tubugl-constants';
-
 export class Shape3D extends Object3D {
 	/**
 	 *
@@ -67,24 +55,24 @@ export class Shape3D extends Object3D {
 	 */
 	_updateDrawStatus() {
 		if (this._side === 'double') {
-			this._gl.disable(CULL_FACE);
+			this._gl.disable(this._gl.CULL_FACE);
 		} else if (this._side === 'front') {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(BACK);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.BACK);
 		} else {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(FRONT);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.FRONT);
 		}
 
-		if (this._isDepthTest) this._gl.enable(DEPTH_TEST);
-		else this._gl.disable(DEPTH_TEST);
+		if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);
+		else this._gl.disable(this._gl.DEPTH_TEST);
 
 		if (this._isTransparent) {
-			this._gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-			this._gl.enable(BLEND);
+			this._gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+			this._gl.enable(this._gl.BLEND);
 		} else {
-			this._gl.blendFunc(ONE, ZERO);
-			this._gl.disable(BLEND);
+			this._gl.blendFunc(this._gl.ONE, this._gl.ZERO);
+			this._gl.disable(this._gl.BLEND);
 		}
 	}
 

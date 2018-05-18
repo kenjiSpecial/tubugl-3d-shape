@@ -3,7 +3,6 @@ import { Euler } from 'tubugl-math/src/euler';
 import { mat4, vec3 } from 'gl-matrix';
 import { Program, ArrayBuffer, IndexArrayBuffer, VAO } from 'tubugl-core';
 import { IndexArrayBuffer as IndexArrayBuffer$1 } from 'tubugl-core/src/indexArrayBuffer';
-import { CULL_FACE, BACK, FRONT, DEPTH_TEST, SRC_ALPHA, ONE_MINUS_SRC_ALPHA, BLEND, ONE, ZERO, TRIANGLES, UNSIGNED_SHORT, LINES } from 'tubugl-constants';
 import { generateWireframeIndices } from 'tubugl-utils';
 import { Program as Program$1 } from 'tubugl-core/src/program';
 import { vec3 as vec3$1 } from 'gl-matrix/src/gl-matrix';
@@ -278,24 +277,24 @@ class Shape3D extends Object3D {
 	 */
 	_updateDrawStatus() {
 		if (this._side === 'double') {
-			this._gl.disable(CULL_FACE);
+			this._gl.disable(this._gl.CULL_FACE);
 		} else if (this._side === 'front') {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(BACK);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.BACK);
 		} else {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(FRONT);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.FRONT);
 		}
 
-		if (this._isDepthTest) this._gl.enable(DEPTH_TEST);
-		else this._gl.disable(DEPTH_TEST);
+		if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);
+		else this._gl.disable(this._gl.DEPTH_TEST);
 
 		if (this._isTransparent) {
-			this._gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-			this._gl.enable(BLEND);
+			this._gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+			this._gl.enable(this._gl.BLEND);
 		} else {
-			this._gl.blendFunc(ONE, ZERO);
-			this._gl.disable(BLEND);
+			this._gl.blendFunc(this._gl.ONE, this._gl.ZERO);
+			this._gl.disable(this._gl.BLEND);
 		}
 	}
 
@@ -477,13 +476,13 @@ class Cube extends Shape3D {
 
 	draw() {
 		this._updateDrawStatus();
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return this;
 	}
 
 	drawWireframe() {
-		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return;
 	}
@@ -809,27 +808,27 @@ class ProceduralCube extends Shape3D {
 
 	draw() {
 		if (this._side === 'double') {
-			this._gl.disable(CULL_FACE);
+			this._gl.disable(this._gl.CULL_FACE);
 		} else if (this._side === 'front') {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(BACK);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.BACK);
 		} else {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(FRONT);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.FRONT);
 		}
 
-		if (this._isDepthTest) this._gl.enable(DEPTH_TEST);
-		else this._gl.disable(DEPTH_TEST);
+		if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);
+		else this._gl.disable(this._gl.DEPTH_TEST);
 
 		if (this._isTransparent) {
-			this.gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-			this._gl.enable(BLEND);
+			this.gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+			this._gl.enable(this._gl.BLEND);
 		} else {
-			this._gl.blendFunc(ONE, ZERO); // default value https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc
-			this._gl.disable(BLEND);
+			this._gl.blendFunc(this._gl.ONE, this._gl.ZERO); // default value https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc
+			this._gl.disable(this._gl.BLEND);
 		}
 
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return this;
 	}
@@ -859,7 +858,7 @@ class ProceduralCube extends Shape3D {
 	}
 
 	drawWireframe() {
-		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return;
 	}
@@ -1401,33 +1400,33 @@ class ProceduralSphere extends Shape3D {
 
 	draw() {
 		if (this._side === 'double') {
-			this._gl.disable(CULL_FACE);
+			this._gl.disable(this._gl.CULL_FACE);
 		} else if (this._side === 'front') {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(BACK);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.BACK);
 		} else {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(FRONT);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.FRONT);
 		}
 
-		if (this._isDepthTest) this._gl.enable(DEPTH_TEST);
-		else this._gl.disable(DEPTH_TEST);
+		if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);
+		else this._gl.disable(this._gl.DEPTH_TEST);
 
 		if (this._isTransparent) {
-			this.gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-			this._gl.enable(BLEND);
+			this.gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+			this._gl.enable(this._gl.BLEND);
 		} else {
-			this._gl.blendFunc(ONE, ZERO);
-			this._gl.disable(BLEND);
+			this._gl.blendFunc(this._gl.ONE, this._gl.ZERO);
+			this._gl.disable(this._gl.BLEND);
 		}
 
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return this;
 	}
 
 	drawWireframe() {
-		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return;
 	}
@@ -1662,7 +1661,7 @@ class ProceduralSphere extends Shape3D {
 				vMin - 1,
 				vMid + this._segments - 1
 			);
-			for (var x = 1; x < this._segments - 1; x++, vMid++) {
+			for (let x = 1; x < this._segments - 1; x++, vMid++) {
 				indexNum = ProceduralSphere.setQuad(
 					indices,
 					indexNum,
@@ -1685,7 +1684,7 @@ class ProceduralSphere extends Shape3D {
 		var vTop = vMin - 2;
 		indexNum = ProceduralSphere.setQuad(indices, indexNum, vMin, vMid, vMin - 1, vMin - 2);
 
-		for (var x = 1; x < this._segments - 1; x++, vTop--, vMid++) {
+		for (let x = 1; x < this._segments - 1; x++, vTop--, vMid++) {
 			indexNum = ProceduralSphere.setQuad(indices, indexNum, vMid, vMid + 1, vTop, vTop - 1);
 		}
 
@@ -1699,7 +1698,7 @@ class ProceduralSphere extends Shape3D {
 		var vMid = verticeLength - (this._segments - 1) * (this._segments - 1);
 
 		indexNum = ProceduralSphere.setQuad(indices, indexNum, ring - 1, vMid, 0, 1);
-		for (var x = 1; x < this._segments - 1; x++, v++, vMid++) {
+		for (let x = 1; x < this._segments - 1; x++, v++, vMid++) {
 			indexNum = ProceduralSphere.setQuad(indices, indexNum, vMid, vMid + 1, v, v + 1);
 		}
 		indexNum = ProceduralSphere.setQuad(indices, indexNum, vMid, v + 2, v, v + 1);
@@ -1708,7 +1707,7 @@ class ProceduralSphere extends Shape3D {
 		vMid -= this._segments - 2;
 		var vMax = v + 2;
 
-		for (var z = 1; z < this._segments - 1; z++, vMin--, vMid++, vMax++) {
+		for (let z = 1; z < this._segments - 1; z++, vMin--, vMid++, vMax++) {
 			indexNum = ProceduralSphere.setQuad(
 				indices,
 				indexNum,
@@ -1717,7 +1716,7 @@ class ProceduralSphere extends Shape3D {
 				vMin + 1,
 				vMid
 			);
-			for (var x = 1; x < this._segments - 1; x++, vMid++) {
+			for (let x = 1; x < this._segments - 1; x++, vMid++) {
 				indexNum = ProceduralSphere.setQuad(
 					indices,
 					indexNum,
@@ -1739,7 +1738,7 @@ class ProceduralSphere extends Shape3D {
 
 		var vTop = vMin - 1;
 		indexNum = ProceduralSphere.setQuad(indices, indexNum, vTop + 1, vTop, vTop + 2, vMid);
-		for (var x = 1; x < this._segments - 1; x++, vTop--, vMid++) {
+		for (let x = 1; x < this._segments - 1; x++, vTop--, vMid++) {
 			indexNum = ProceduralSphere.setQuad(indices, indexNum, vTop, vTop - 1, vMid, vMid + 1);
 		}
 		indexNum = ProceduralSphere.setQuad(indices, indexNum, vTop, vTop - 1, vMid, vTop - 2);
@@ -1851,33 +1850,33 @@ class Sphere extends Shape3D {
 
 	draw() {
 		if (this._side === 'double') {
-			this._gl.disable(CULL_FACE);
+			this._gl.disable(this._gl.CULL_FACE);
 		} else if (this._side === 'front') {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(BACK);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.BACK);
 		} else {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(FRONT);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.FRONT);
 		}
 
-		if (this._isDepthTest) this._gl.enable(DEPTH_TEST);
-		else this._gl.disable(DEPTH_TEST);
+		if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);
+		else this._gl.disable(this._gl.DEPTH_TEST);
 
 		if (this._isTransparent) {
-			this._gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-			this._gl.enable(BLEND);
+			this._gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+			this._gl.enable(this._gl.BLEND);
 		} else {
-			this._gl.blendFunc(ONE, ZERO);
-			this._gl.disable(BLEND);
+			this._gl.blendFunc(this._gl.ONE, this._gl.ZERO);
+			this._gl.disable(this._gl.BLEND);
 		}
 
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return this;
 	}
 
 	drawWireframe() {
-		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return;
 	}
@@ -2287,7 +2286,7 @@ class Cone extends Shape3D {
 
 	draw() {
 		this._updateDrawStatus();
-		this._gl.drawArrays(TRIANGLES, 0, this._cnt);
+		this._gl.drawArrays(this._gl.TRIANGLES, 0, this._cnt);
 
 		return this;
 	}
@@ -2310,7 +2309,7 @@ class Cone extends Shape3D {
 	}
 
 	drawWireframe() {
-		this._gl.drawArrays(LINES, 0, this._wireframeCnt);
+		this._gl.drawArrays(this._gl.LINES, 0, this._wireframeCnt);
 		return this;
 	}
 }
@@ -2392,12 +2391,12 @@ class Cylinder extends Shape3D {
 	// ========================
 
 	_makeProgram(params) {
-		const vertexShaderSrc = params.vertexShaderSrc
-			? params.vertexShaderSrc
-			: this._isGl2 ? base2ShaderVertSrc : normalShaderVertSrc;
-		const fragmentShaderSrc = params.fragmentShaderSrc
-			? params.fragmentShaderSrc
-			: this._isGl2 ? base2ShaderFragSrc : normalShaderFragSrc;
+		const vertexShaderSrc = params.vertexShaderSrc ?
+			params.vertexShaderSrc :
+			this._isGl2 ? base2ShaderVertSrc : normalShaderVertSrc;
+		const fragmentShaderSrc = params.fragmentShaderSrc ?
+			params.fragmentShaderSrc :
+			this._isGl2 ? base2ShaderFragSrc : normalShaderFragSrc;
 
 		this._program = new Program(this._gl, vertexShaderSrc, fragmentShaderSrc);
 	}
@@ -2565,7 +2564,7 @@ class Cylinder extends Shape3D {
 
 	draw() {
 		this._updateDrawStatus();
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return this;
 	}
@@ -2589,7 +2588,7 @@ class Cylinder extends Shape3D {
 	}
 
 	drawWireframe() {
-		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 		return this;
 	}
 }

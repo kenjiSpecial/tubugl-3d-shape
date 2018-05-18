@@ -1,5 +1,5 @@
 import { Shape3D } from './shape3D';
-import { ArrayBuffer, IndexArrayBuffer, Program } from 'tubugl-core';
+import { ArrayBuffer, Program } from 'tubugl-core';
 import {
 	normalShaderFragSrc,
 	normalShaderVertSrc,
@@ -8,21 +8,6 @@ import {
 	wireFrameFragSrc,
 	baseShaderVertSrc
 } from './shaders/base.shader';
-
-import {
-	CULL_FACE,
-	FRONT,
-	BACK,
-	TRIANGLES,
-	UNSIGNED_SHORT,
-	DEPTH_TEST,
-	SRC_ALPHA,
-	ONE,
-	ZERO,
-	BLEND,
-	LINES,
-	ONE_MINUS_SRC_ALPHA
-} from 'tubugl-constants';
 
 import { vec3 } from 'gl-matrix';
 
@@ -262,7 +247,7 @@ export class Cone extends Shape3D {
 
 	draw() {
 		this._updateDrawStatus();
-		this._gl.drawArrays(TRIANGLES, 0, this._cnt);
+		this._gl.drawArrays(this._gl.TRIANGLES, 0, this._cnt);
 
 		return this;
 	}
@@ -285,7 +270,7 @@ export class Cone extends Shape3D {
 	}
 
 	drawWireframe() {
-		this._gl.drawArrays(LINES, 0, this._wireframeCnt);
+		this._gl.drawArrays(this._gl.LINES, 0, this._wireframeCnt);
 		return this;
 	}
 }

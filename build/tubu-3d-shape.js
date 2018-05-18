@@ -1,8 +1,8 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('tubugl-math/src/vector3'), require('tubugl-math/src/euler'), require('gl-matrix'), require('tubugl-core'), require('tubugl-core/src/indexArrayBuffer'), require('tubugl-constants'), require('tubugl-utils'), require('tubugl-core/src/program'), require('gl-matrix/src/gl-matrix')) :
-	typeof define === 'function' && define.amd ? define(['exports', 'tubugl-math/src/vector3', 'tubugl-math/src/euler', 'gl-matrix', 'tubugl-core', 'tubugl-core/src/indexArrayBuffer', 'tubugl-constants', 'tubugl-utils', 'tubugl-core/src/program', 'gl-matrix/src/gl-matrix'], factory) :
-	(factory((global.Tubu = {}),global.vector3,global.euler,global.glMatrix,global.tubuglCore,global.indexArrayBuffer,global.tubuglConstants,global.tubuglUtils,global.program,global.glMatrix$1));
-}(this, (function (exports,vector3,euler,glMatrix,tubuglCore,indexArrayBuffer,tubuglConstants,tubuglUtils,program,glMatrix$1) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('tubugl-math/src/vector3'), require('tubugl-math/src/euler'), require('gl-matrix'), require('tubugl-core'), require('tubugl-core/src/indexArrayBuffer'), require('tubugl-utils'), require('tubugl-core/src/program'), require('gl-matrix/src/gl-matrix')) :
+	typeof define === 'function' && define.amd ? define(['exports', 'tubugl-math/src/vector3', 'tubugl-math/src/euler', 'gl-matrix', 'tubugl-core', 'tubugl-core/src/indexArrayBuffer', 'tubugl-utils', 'tubugl-core/src/program', 'gl-matrix/src/gl-matrix'], factory) :
+	(factory((global.Tubu = {}),global.vector3,global.euler,global.glMatrix,global.tubuglCore,global.indexArrayBuffer,global.tubuglUtils,global.program,global.glMatrix$1));
+}(this, (function (exports,vector3,euler,glMatrix,tubuglCore,indexArrayBuffer,tubuglUtils,program,glMatrix$1) { 'use strict';
 
 var baseShaderVertSrc = "\nattribute vec4 position;\n\nuniform mat4 projectionMatrix;\nuniform mat4 viewMatrix;\nuniform mat4 modelMatrix;\n\n\nvoid main() {\n    gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;\n    gl_PointSize = 10.;\n}";
 
@@ -270,23 +270,23 @@ var Shape3D = function (_Object3D) {
 		key: '_updateDrawStatus',
 		value: function _updateDrawStatus() {
 			if (this._side === 'double') {
-				this._gl.disable(tubuglConstants.CULL_FACE);
+				this._gl.disable(this._gl.CULL_FACE);
 			} else if (this._side === 'front') {
-				this._gl.enable(tubuglConstants.CULL_FACE);
-				this._gl.cullFace(tubuglConstants.BACK);
+				this._gl.enable(this._gl.CULL_FACE);
+				this._gl.cullFace(this._gl.BACK);
 			} else {
-				this._gl.enable(tubuglConstants.CULL_FACE);
-				this._gl.cullFace(tubuglConstants.FRONT);
+				this._gl.enable(this._gl.CULL_FACE);
+				this._gl.cullFace(this._gl.FRONT);
 			}
 
-			if (this._isDepthTest) this._gl.enable(tubuglConstants.DEPTH_TEST);else this._gl.disable(tubuglConstants.DEPTH_TEST);
+			if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);else this._gl.disable(this._gl.DEPTH_TEST);
 
 			if (this._isTransparent) {
-				this._gl.blendFunc(tubuglConstants.SRC_ALPHA, tubuglConstants.ONE_MINUS_SRC_ALPHA);
-				this._gl.enable(tubuglConstants.BLEND);
+				this._gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+				this._gl.enable(this._gl.BLEND);
 			} else {
-				this._gl.blendFunc(tubuglConstants.ONE, tubuglConstants.ZERO);
-				this._gl.disable(tubuglConstants.BLEND);
+				this._gl.blendFunc(this._gl.ONE, this._gl.ZERO);
+				this._gl.disable(this._gl.BLEND);
 			}
 		}
 	}, {
@@ -459,14 +459,14 @@ var Cube = function (_Shape3D) {
 		key: 'draw',
 		value: function draw() {
 			this._updateDrawStatus();
-			this._gl.drawElements(tubuglConstants.TRIANGLES, this._cnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 			return this;
 		}
 	}, {
 		key: 'drawWireframe',
 		value: function drawWireframe() {
-			this._gl.drawElements(tubuglConstants.LINES, this._wireframeIndexCnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 			return;
 		}
@@ -813,26 +813,26 @@ var ProceduralCube = function (_Shape3D) {
 		key: 'draw',
 		value: function draw() {
 			if (this._side === 'double') {
-				this._gl.disable(tubuglConstants.CULL_FACE);
+				this._gl.disable(this._gl.CULL_FACE);
 			} else if (this._side === 'front') {
-				this._gl.enable(tubuglConstants.CULL_FACE);
-				this._gl.cullFace(tubuglConstants.BACK);
+				this._gl.enable(this._gl.CULL_FACE);
+				this._gl.cullFace(this._gl.BACK);
 			} else {
-				this._gl.enable(tubuglConstants.CULL_FACE);
-				this._gl.cullFace(tubuglConstants.FRONT);
+				this._gl.enable(this._gl.CULL_FACE);
+				this._gl.cullFace(this._gl.FRONT);
 			}
 
-			if (this._isDepthTest) this._gl.enable(tubuglConstants.DEPTH_TEST);else this._gl.disable(tubuglConstants.DEPTH_TEST);
+			if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);else this._gl.disable(this._gl.DEPTH_TEST);
 
 			if (this._isTransparent) {
-				this.gl.blendFunc(tubuglConstants.SRC_ALPHA, tubuglConstants.ONE_MINUS_SRC_ALPHA);
-				this._gl.enable(tubuglConstants.BLEND);
+				this.gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+				this._gl.enable(this._gl.BLEND);
 			} else {
-				this._gl.blendFunc(tubuglConstants.ONE, tubuglConstants.ZERO); // default value https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc
-				this._gl.disable(tubuglConstants.BLEND);
+				this._gl.blendFunc(this._gl.ONE, this._gl.ZERO); // default value https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc
+				this._gl.disable(this._gl.BLEND);
 			}
 
-			this._gl.drawElements(tubuglConstants.TRIANGLES, this._cnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 			return this;
 		}
@@ -864,7 +864,7 @@ var ProceduralCube = function (_Shape3D) {
 	}, {
 		key: 'drawWireframe',
 		value: function drawWireframe() {
-			this._gl.drawElements(tubuglConstants.LINES, this._wireframeIndexCnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 			return;
 		}
@@ -1323,33 +1323,33 @@ var ProceduralSphere = function (_Shape3D) {
 		key: 'draw',
 		value: function draw() {
 			if (this._side === 'double') {
-				this._gl.disable(tubuglConstants.CULL_FACE);
+				this._gl.disable(this._gl.CULL_FACE);
 			} else if (this._side === 'front') {
-				this._gl.enable(tubuglConstants.CULL_FACE);
-				this._gl.cullFace(tubuglConstants.BACK);
+				this._gl.enable(this._gl.CULL_FACE);
+				this._gl.cullFace(this._gl.BACK);
 			} else {
-				this._gl.enable(tubuglConstants.CULL_FACE);
-				this._gl.cullFace(tubuglConstants.FRONT);
+				this._gl.enable(this._gl.CULL_FACE);
+				this._gl.cullFace(this._gl.FRONT);
 			}
 
-			if (this._isDepthTest) this._gl.enable(tubuglConstants.DEPTH_TEST);else this._gl.disable(tubuglConstants.DEPTH_TEST);
+			if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);else this._gl.disable(this._gl.DEPTH_TEST);
 
 			if (this._isTransparent) {
-				this.gl.blendFunc(tubuglConstants.SRC_ALPHA, tubuglConstants.ONE_MINUS_SRC_ALPHA);
-				this._gl.enable(tubuglConstants.BLEND);
+				this.gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+				this._gl.enable(this._gl.BLEND);
 			} else {
-				this._gl.blendFunc(tubuglConstants.ONE, tubuglConstants.ZERO);
-				this._gl.disable(tubuglConstants.BLEND);
+				this._gl.blendFunc(this._gl.ONE, this._gl.ZERO);
+				this._gl.disable(this._gl.BLEND);
 			}
 
-			this._gl.drawElements(tubuglConstants.TRIANGLES, this._cnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 			return this;
 		}
 	}, {
 		key: 'drawWireframe',
 		value: function drawWireframe() {
-			this._gl.drawElements(tubuglConstants.LINES, this._wireframeIndexCnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 			return;
 		}
@@ -1506,7 +1506,7 @@ var ProceduralSphere = function (_Shape3D) {
 			var vTop = vMin - 2;
 			indexNum = ProceduralSphere.setQuad(indices, indexNum, vMin, vMid, vMin - 1, vMin - 2);
 
-			for (var x = 1; x < this._segments - 1; x++, vTop--, vMid++) {
+			for (var _x4 = 1; _x4 < this._segments - 1; _x4++, vTop--, vMid++) {
 				indexNum = ProceduralSphere.setQuad(indices, indexNum, vMid, vMid + 1, vTop, vTop - 1);
 			}
 
@@ -1532,7 +1532,7 @@ var ProceduralSphere = function (_Shape3D) {
 
 			for (var z = 1; z < this._segments - 1; z++, vMin--, vMid++, vMax++) {
 				indexNum = ProceduralSphere.setQuad(indices, indexNum, vMin, vMid + this._segments - 1, vMin + 1, vMid);
-				for (var x = 1; x < this._segments - 1; x++, vMid++) {
+				for (var _x5 = 1; _x5 < this._segments - 1; _x5++, vMid++) {
 					indexNum = ProceduralSphere.setQuad(indices, indexNum, vMid + this._segments - 1, vMid + this._segments, vMid, vMid + 1);
 				}
 				indexNum = ProceduralSphere.setQuad(indices, indexNum, vMid + this._segments - 1, vMax + 1, vMid, vMax);
@@ -1540,7 +1540,7 @@ var ProceduralSphere = function (_Shape3D) {
 
 			var vTop = vMin - 1;
 			indexNum = ProceduralSphere.setQuad(indices, indexNum, vTop + 1, vTop, vTop + 2, vMid);
-			for (var x = 1; x < this._segments - 1; x++, vTop--, vMid++) {
+			for (var _x6 = 1; _x6 < this._segments - 1; _x6++, vTop--, vMid++) {
 				indexNum = ProceduralSphere.setQuad(indices, indexNum, vTop, vTop - 1, vMid, vMid + 1);
 			}
 			indexNum = ProceduralSphere.setQuad(indices, indexNum, vTop, vTop - 1, vMid, vTop - 2);
@@ -1662,33 +1662,33 @@ var Sphere = function (_Shape3D) {
 		key: 'draw',
 		value: function draw() {
 			if (this._side === 'double') {
-				this._gl.disable(tubuglConstants.CULL_FACE);
+				this._gl.disable(this._gl.CULL_FACE);
 			} else if (this._side === 'front') {
-				this._gl.enable(tubuglConstants.CULL_FACE);
-				this._gl.cullFace(tubuglConstants.BACK);
+				this._gl.enable(this._gl.CULL_FACE);
+				this._gl.cullFace(this._gl.BACK);
 			} else {
-				this._gl.enable(tubuglConstants.CULL_FACE);
-				this._gl.cullFace(tubuglConstants.FRONT);
+				this._gl.enable(this._gl.CULL_FACE);
+				this._gl.cullFace(this._gl.FRONT);
 			}
 
-			if (this._isDepthTest) this._gl.enable(tubuglConstants.DEPTH_TEST);else this._gl.disable(tubuglConstants.DEPTH_TEST);
+			if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);else this._gl.disable(this._gl.DEPTH_TEST);
 
 			if (this._isTransparent) {
-				this._gl.blendFunc(tubuglConstants.SRC_ALPHA, tubuglConstants.ONE_MINUS_SRC_ALPHA);
-				this._gl.enable(tubuglConstants.BLEND);
+				this._gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+				this._gl.enable(this._gl.BLEND);
 			} else {
-				this._gl.blendFunc(tubuglConstants.ONE, tubuglConstants.ZERO);
-				this._gl.disable(tubuglConstants.BLEND);
+				this._gl.blendFunc(this._gl.ONE, this._gl.ZERO);
+				this._gl.disable(this._gl.BLEND);
 			}
 
-			this._gl.drawElements(tubuglConstants.TRIANGLES, this._cnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 			return this;
 		}
 	}, {
 		key: 'drawWireframe',
 		value: function drawWireframe() {
-			this._gl.drawElements(tubuglConstants.LINES, this._wireframeIndexCnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 			return;
 		}
@@ -2077,7 +2077,7 @@ var Cone = function (_Shape3D) {
 		key: 'draw',
 		value: function draw() {
 			this._updateDrawStatus();
-			this._gl.drawArrays(tubuglConstants.TRIANGLES, 0, this._cnt);
+			this._gl.drawArrays(this._gl.TRIANGLES, 0, this._cnt);
 
 			return this;
 		}
@@ -2099,7 +2099,7 @@ var Cone = function (_Shape3D) {
 	}, {
 		key: 'drawWireframe',
 		value: function drawWireframe() {
-			this._gl.drawArrays(tubuglConstants.LINES, 0, this._wireframeCnt);
+			this._gl.drawArrays(this._gl.LINES, 0, this._wireframeCnt);
 			return this;
 		}
 	}]);
@@ -2358,7 +2358,7 @@ var Cylinder = function (_Shape3D) {
 		key: 'draw',
 		value: function draw() {
 			this._updateDrawStatus();
-			this._gl.drawElements(tubuglConstants.TRIANGLES, this._cnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 			return this;
 		}
@@ -2380,7 +2380,7 @@ var Cylinder = function (_Shape3D) {
 	}, {
 		key: 'drawWireframe',
 		value: function drawWireframe() {
-			this._gl.drawElements(tubuglConstants.LINES, this._wireframeIndexCnt, tubuglConstants.UNSIGNED_SHORT, 0);
+			this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 			return this;
 		}
 	}]);

@@ -7,22 +7,6 @@ import {
 	wireFrameFragSrc
 } from './shaders/base.shader';
 import { Program, ArrayBuffer, IndexArrayBuffer, VAO } from 'tubugl-core';
-
-import {
-	CULL_FACE,
-	FRONT,
-	BACK,
-	TRIANGLES,
-	UNSIGNED_SHORT,
-	DEPTH_TEST,
-	SRC_ALPHA,
-	ONE,
-	ZERO,
-	BLEND,
-	LINES,
-	ONE_MINUS_SRC_ALPHA
-} from 'tubugl-constants';
-
 import { generateWireframeIndices } from 'tubugl-utils';
 import { Shape3D } from './shape3D';
 
@@ -86,27 +70,27 @@ export class ProceduralCube extends Shape3D {
 
 	draw() {
 		if (this._side === 'double') {
-			this._gl.disable(CULL_FACE);
+			this._gl.disable(this._gl.CULL_FACE);
 		} else if (this._side === 'front') {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(BACK);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.BACK);
 		} else {
-			this._gl.enable(CULL_FACE);
-			this._gl.cullFace(FRONT);
+			this._gl.enable(this._gl.CULL_FACE);
+			this._gl.cullFace(this._gl.FRONT);
 		}
 
-		if (this._isDepthTest) this._gl.enable(DEPTH_TEST);
-		else this._gl.disable(DEPTH_TEST);
+		if (this._isDepthTest) this._gl.enable(this._gl.DEPTH_TEST);
+		else this._gl.disable(this._gl.DEPTH_TEST);
 
 		if (this._isTransparent) {
-			this.gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-			this._gl.enable(BLEND);
+			this.gl.blendFunc(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA);
+			this._gl.enable(this._gl.BLEND);
 		} else {
-			this._gl.blendFunc(ONE, ZERO); // default value https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc
-			this._gl.disable(BLEND);
+			this._gl.blendFunc(this._gl.ONE, this._gl.ZERO); // default value https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/blendFunc
+			this._gl.disable(this._gl.BLEND);
 		}
 
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return this;
 	}
@@ -136,7 +120,7 @@ export class ProceduralCube extends Shape3D {
 	}
 
 	drawWireframe() {
-		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return;
 	}

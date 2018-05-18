@@ -1,5 +1,11 @@
-import { Shape3D } from './shape3D';
-import { ArrayBuffer, IndexArrayBuffer, Program } from 'tubugl-core';
+import {
+	Shape3D
+} from './shape3D';
+import {
+	ArrayBuffer,
+	IndexArrayBuffer,
+	Program
+} from 'tubugl-core';
 import {
 	normalShaderFragSrc,
 	normalShaderVertSrc,
@@ -8,11 +14,12 @@ import {
 	wireFrameFragSrc,
 	baseShaderVertSrc
 } from './shaders/base.shader';
-
-import { TRIANGLES, UNSIGNED_SHORT, LINES } from 'tubugl-constants';
-
-import { generateWireframeIndices } from 'tubugl-utils';
-import { vec3 } from 'gl-matrix';
+import {
+	generateWireframeIndices
+} from 'tubugl-utils';
+import {
+	vec3
+} from 'gl-matrix';
 
 export class Cylinder extends Shape3D {
 	constructor(
@@ -91,12 +98,12 @@ export class Cylinder extends Shape3D {
 	// ========================
 
 	_makeProgram(params) {
-		const vertexShaderSrc = params.vertexShaderSrc
-			? params.vertexShaderSrc
-			: this._isGl2 ? base2ShaderVertSrc : normalShaderVertSrc;
-		const fragmentShaderSrc = params.fragmentShaderSrc
-			? params.fragmentShaderSrc
-			: this._isGl2 ? base2ShaderFragSrc : normalShaderFragSrc;
+		const vertexShaderSrc = params.vertexShaderSrc ?
+			params.vertexShaderSrc :
+			this._isGl2 ? base2ShaderVertSrc : normalShaderVertSrc;
+		const fragmentShaderSrc = params.fragmentShaderSrc ?
+			params.fragmentShaderSrc :
+			this._isGl2 ? base2ShaderFragSrc : normalShaderFragSrc;
 
 		this._program = new Program(this._gl, vertexShaderSrc, fragmentShaderSrc);
 	}
@@ -264,7 +271,7 @@ export class Cylinder extends Shape3D {
 
 	draw() {
 		this._updateDrawStatus();
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return this;
 	}
@@ -288,7 +295,7 @@ export class Cylinder extends Shape3D {
 	}
 
 	drawWireframe() {
-		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 		return this;
 	}
 }

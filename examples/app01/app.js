@@ -4,10 +4,9 @@
 
 const dat = require('../vendor/dat.gui.min');
 const TweenLite = require('gsap/TweenLite');
-const Stats = require('stats.js');
+const Stats = require('../vendor/stats.min');
 
-import { DEPTH_TEST } from 'tubugl-constants';
-import { ProceduralRoundingCube } from '../../index';
+import { ProceduralRoundingCube } from '../../src/index';
 import { NormalHelper } from 'tubugl-helper';
 import { PerspectiveCamera } from 'tubugl-camera';
 
@@ -116,7 +115,7 @@ export default class App {
 
 	_setClear() {
 		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-		this.gl.enable(DEPTH_TEST);
+		this.gl.enable(this.gl.DEPTH_TEST);
 	}
 
 	_makeBox() {

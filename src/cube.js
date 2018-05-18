@@ -7,7 +7,6 @@ import {
 	baseShaderVertSrc
 } from './shaders/base.shader';
 import { Program, ArrayBuffer, IndexArrayBuffer, VAO } from 'tubugl-core';
-import { TRIANGLES, UNSIGNED_SHORT, LINES } from 'tubugl-constants';
 import { generateWireframeIndices } from 'tubugl-utils';
 import { Shape3D } from './shape3D';
 
@@ -160,13 +159,13 @@ export class Cube extends Shape3D {
 
 	draw() {
 		this._updateDrawStatus();
-		this._gl.drawElements(TRIANGLES, this._cnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.TRIANGLES, this._cnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return this;
 	}
 
 	drawWireframe() {
-		this._gl.drawElements(LINES, this._wireframeIndexCnt, UNSIGNED_SHORT, 0);
+		this._gl.drawElements(this._gl.LINES, this._wireframeIndexCnt, this._gl.UNSIGNED_SHORT, 0);
 
 		return;
 	}

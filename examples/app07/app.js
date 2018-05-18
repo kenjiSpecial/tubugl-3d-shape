@@ -4,10 +4,9 @@
 
 const dat = require('../vendor/dat.gui.min');
 const TweenLite = require('gsap/TweenLite');
-const Stats = require('stats.js');
+const Stats = require('../vendor/stats.min');
 
-import { DEPTH_TEST } from 'tubugl-constants';
-import { Cylinder } from '../../index';
+import { Cylinder } from '../../src/index';
 import { NormalHelper, GridHelper } from 'tubugl-helper';
 import { PerspectiveCamera, CameraController } from 'tubugl-camera';
 
@@ -96,7 +95,7 @@ export default class App {
 
 	_setClear() {
 		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-		this.gl.enable(DEPTH_TEST);
+		this.gl.enable(this.gl.DEPTH_TEST);
 	}
 
 	_makeObject() {
@@ -111,7 +110,7 @@ export default class App {
 
 	_makeHelper() {
 		this._normalHelper = new NormalHelper(this.gl, this._cylinder);
-		this._gridHelper = new GridHelper(this.gl, 1000, 1000, 20, 20);
+		this._gridHelper = new GridHelper(this.gl, {}, 1000, 1000, 20, 20);
 	}
 
 	_makeCamera() {
